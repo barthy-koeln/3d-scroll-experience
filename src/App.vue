@@ -1,0 +1,45 @@
+<template>
+  <RouterView/>
+</template>
+
+<script
+  lang="ts"
+  setup
+>
+  import { RouterView } from 'vue-router'
+</script>
+
+<style lang="scss">
+  @use "variables" as *;
+
+  *,
+  *::before,
+  *::after {
+    background: transparent;
+    border: 0;
+    box-sizing: border-box;
+    font-style: normal;
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  body {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity $duration $easing;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+</style>
