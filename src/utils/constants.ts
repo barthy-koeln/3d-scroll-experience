@@ -1,0 +1,1 @@
+export const ORBIT_MIN_DISTANCE = 300

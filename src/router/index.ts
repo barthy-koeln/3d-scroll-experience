@@ -6,15 +6,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../components/Page/PHome.vue'),
-      props: {
-        modelUrl: '/models/monica_lubenau/monica_lubenau.gltf',
-        elementsToInspect: [
-          'top_floor',
-          'bottom_floor',
-          'roof'
-        ]
-      }
+      component: () => import('../components/Page/PHome.vue')
     }
   ]
 })
