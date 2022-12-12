@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+rsync -r --progress --stats -h --delete -a ./dist barthy.koeln:/var/www/archvis/
+s
