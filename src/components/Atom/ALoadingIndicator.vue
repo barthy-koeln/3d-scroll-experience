@@ -1,22 +1,11 @@
 <template>
   <div class="ALoadingIndicator">
-    <div></div>
-
-    <div></div>
-
-    <div></div>
-
-    <div></div>
-
-    <div></div>
-
-    <div></div>
-
-    <div></div>
-
-    <div></div>
-
-    <div></div>
+    <template
+      v-for="index in 9"
+      :key="index"
+    >
+      <div/>
+    </template>
   </div>
 </template>
 
@@ -29,75 +18,38 @@
 </script>
 
 <style lang="scss">
+  @use "sass:math";
   @use "@/_variables.scss" as *;
 
   .ALoadingIndicator {
-    display: inline-block;
-    height: 80px;
+    $gap: 10px;
+    $dotSize: 20px;
+    $size: 3*$dotSize + 2*$gap;
+    $duration: 1.2s;
+    $duration-third: $duration / 3;
+
+    display: grid;
+    height: $size;
     position: relative;
-    width: 80px;
+    width: $size;
+    gap: $gap;
+    grid-template-columns: 1fr 1fr 1fr;
 
     div {
-      animation: lds-grid 1.2s linear infinite;
+      animation: lds-grid $duration linear infinite;
       background: #fff;
       border-radius: 50%;
-      height: 16px;
-      position: absolute;
-      width: 16px;
-    }
+      height: $dotSize;
+      width: $dotSize;
 
-    div:nth-child(1) {
-      animation-delay: 0s;
-      left: 8px;
-      top: 8px;
-    }
+      @for $index from 0 through 8 {
+        $modulo: $index % 3;
+        $row: math.floor(math.div($index, 3));
 
-    div:nth-child(2) {
-      animation-delay: -0.4s;
-      left: 32px;
-      top: 8px;
-    }
-
-    div:nth-child(3) {
-      animation-delay: -0.8s;
-      left: 56px;
-      top: 8px;
-    }
-
-    div:nth-child(4) {
-      animation-delay: -0.4s;
-      left: 8px;
-      top: 32px;
-    }
-
-    div:nth-child(5) {
-      animation-delay: -0.8s;
-      left: 32px;
-      top: 32px;
-    }
-
-    div:nth-child(6) {
-      animation-delay: -1.2s;
-      left: 56px;
-      top: 32px;
-    }
-
-    div:nth-child(7) {
-      animation-delay: -0.8s;
-      left: 8px;
-      top: 56px;
-    }
-
-    div:nth-child(8) {
-      animation-delay: -1.2s;
-      left: 32px;
-      top: 56px;
-    }
-
-    div:nth-child(9) {
-      animation-delay: -1.6s;
-      left: 56px;
-      top: 56px;
+        &:nth-child(#{$index + 1}) {
+          animation-delay: $row * $duration-third - $modulo * $duration-third;
+        }
+      }
     }
 
     @keyframes lds-grid {
@@ -109,4 +61,4 @@
       }
     }
   }
-</style>
+</style>B

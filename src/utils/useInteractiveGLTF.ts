@@ -1,5 +1,5 @@
 import { useCompressedGLTFLoader } from '@/utils/useCompressedGLTFLoader'
-import { Box3, Object3D } from 'three'
+import { Box3, Object3D, Scene } from 'three'
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 
 export interface InteractiveGltf {
@@ -8,11 +8,12 @@ export interface InteractiveGltf {
   interactiveObjects: Object3D[]
 }
 
-export async function useInteractiveGLTF (url: string, interactiveElementNames: string[]) {
+export async function useInteractiveGLTF (url: string, interactiveElementNames: string[], scene: Scene) {
   const gltfLoader = useCompressedGLTFLoader()
 
   function prepareObjectForInteractivity (object: Object3D) {
     // nothing yet...
+    object.userData.initialPosition = object.position.clone()
   }
 
   const onLoad = (resolve: Function, interactiveElementNames: string[], interactiveObjects: Object3D[]) => (gltf: GLTF) => {
@@ -29,14 +30,13 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     }
 
     const initialBox = new Box3().setFromObject(gltf.scene)
+    scene.add(gltf.scene)
 
     resolve({
-      gltf,
       initialBox,
       interactiveObjects
     })
   }
-
 
   const interactiveObjects = [] as Object3D[]
 

@@ -4,9 +4,10 @@
       mode="out-in"
       name="fade"
     >
-      <Suspense>
+      <Suspense @resolve="onSceneLoaded">
         <template #default>
           <OInterActiveScene
+            ref="scene"
             :active-object="activeObject"
             :hover-object="hoverObject"
             :interactive-element-names="[
@@ -15,9 +16,7 @@
                   'roof'
                 ]"
             model-url="/models/monica_lubenau/monica_lubenau.gltf"
-            @pointerdown.passive="on3dPointerDown"
-            @pointermove.passive="on3dPointerMove"
-            @pointerup.passive="on3dPointerUp"
+            @click="onClick"
             @update:hover="onUpdateHover"
           />
         </template>
@@ -40,6 +39,27 @@
           />
         </template>
       </Transition>
+
+      <button
+        type="button"
+        @click="showHelp = !showHelp"
+      >
+        <strong>&quest;</strong>
+
+        <QVisuallyHidden>Help</QVisuallyHidden>
+      </button>
+
+      <Transition
+        mode="out-in"
+        name="fade"
+      >
+        <template v-if="showHelp">
+          <MHoverDescription
+            description="Left mouse button to rotate, right mouse button to pan. Middle mouse button and wheel to zoom."
+            title="Camera Controls"
+          />
+        </template>
+      </Transition>
     </div>
   </div>
 </template>
@@ -48,13 +68,16 @@
   import ALoadingIndicator from '@/components/Atom/ALoadingIndicator.vue'
   import MHoverDescription from '@/components/Molecule/MHoverDescription.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
+  import QVisuallyHidden from '@/components/Quark/QVisuallyHidden.vue'
+  import { useObjectDetailView } from '@/utils/useObjectDetailView'
   import type { Object3D } from 'three'
-  import { defineComponent } from 'vue'
+  import { defineComponent, ref, toRaw } from 'vue'
 
   export default defineComponent({
     name: 'PHome',
 
     components: {
+      QVisuallyHidden,
       MHoverDescription,
       ALoadingIndicator,
       OInterActiveScene
@@ -64,10 +87,7 @@
       return {
         hoverObject: null as Object3D | null,
         activeObject: null as Object3D | null,
-        pointerDownTime: null as number | null,
-        pointerX: null as number | null,
-        pointerY: null as number | null,
-        hoverTimeout: null as number | null
+        showHelp: false
       }
     },
 
@@ -96,28 +116,31 @@
       }
     },
 
-    methods: {
-      on3dPointerMove (event: MouseEvent) {
-        this.pointerX = Math.round(event.clientX)
-        this.pointerY = Math.round(event.clientY)
-      },
 
-      on3dPointerDown () {
-        this.pointerDownTime = performance.now()
-      },
+    setup () {
+      const scene = ref<InstanceType<typeof OInterActiveScene> | null>(null)
 
-      on3dPointerUp () {
-        if (!this.pointerDownTime) {
+      return {
+        scene,
+        ...useObjectDetailView(scene)
+      }
+    },
+
+    watch: {
+      activeObject (newActiveObject, previousActiveObject) {
+        if (!this.scene) {
           return
         }
 
-        const delta = performance.now() - this.pointerDownTime
-        if (delta < 150) {
-          this.on3dClick()
-        }
-      },
+        const rawNewActive = toRaw(newActiveObject)
+        const rawPreviousActive = toRaw(previousActiveObject)
 
-      on3dClick () {
+        this.toggleActiveObject(this.scene.interactiveObjects, rawNewActive, rawPreviousActive)
+      }
+    },
+
+    methods: {
+      onClick () {
         if (!this.hoverObject) {
           return
         }
@@ -132,6 +155,11 @@
 
       onUpdateHover (object: Object3D | null) {
         this.hoverObject = object
+      },
+
+      async onSceneLoaded () {
+        await this.$nextTick()
+        // this.$refs.scene.stopOrbitControls()
       }
     }
   })

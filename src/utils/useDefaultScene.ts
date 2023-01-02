@@ -1,6 +1,8 @@
-import { AmbientLight, CubeTexture, GridHelper, Object3D, Scene } from 'three'
+import { useEnvMap } from '@/utils/useEnvMap'
+import { AmbientLight, GridHelper, Scene } from 'three'
 
-export function useDefaultScene (envMap: CubeTexture, objects: Object3D[] = []): Scene {
+export function useDefaultScene (): Scene {
+  const envMap = useEnvMap()
   const scene = new Scene()
 
   scene.environment = envMap
@@ -10,7 +12,6 @@ export function useDefaultScene (envMap: CubeTexture, objects: Object3D[] = []):
 
   scene.add(gridHelper)
   scene.add(new AmbientLight(0xffffff, 2))
-  scene.add(...objects)
 
   return scene
 }
