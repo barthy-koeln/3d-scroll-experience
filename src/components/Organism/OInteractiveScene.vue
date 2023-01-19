@@ -9,18 +9,18 @@
 
 <script lang="ts">
   import { useBVHRaycaster } from '@/utils/useBVHRaycaster'
-  import { useCamera } from '@/utils/useCamera'
-  import { useCanvas } from '@/utils/useCanvas'
   import { useClickWithoutDragging } from '@/utils/useClickWithoutDragging'
-  import { useComposer } from '@/utils/useComposer'
   import { useDefaultScene } from '@/utils/useDefaultScene'
   import { useInteractiveGLTF } from '@/utils/useInteractiveGLTF'
   import { useOrbitControls } from '@/utils/useOrbitControls'
-  import { useRenderer } from '@/utils/useRenderer'
-  import { useResponsiveHandlers } from '@/utils/useResponsiveHandlers'
+  import { useResizeListeners } from '@/utils/useResizeListeners'
+  import { useResponsiveCamera } from '@/utils/useResponsiveCamera'
+  import { useResponsiveCanvas } from '@/utils/useResponsiveCanvas'
+  import { useResponsiveEffectComposer } from '@/utils/useResponsiveEffectComposer'
+  import { useResponsiveRenderer } from '@/utils/useResponsiveRenderer'
   import { useTrackedPointer } from '@/utils/useTrackedPointer'
   import { update as updateAllTweens } from '@tweenjs/tween.js'
-  import { Color, Object3D } from 'three'
+  import { Clock, Color, Object3D } from 'three'
   import type { PropType, SetupContext } from 'vue'
   import { defineComponent } from 'vue'
 
@@ -35,28 +35,27 @@
 
       interactiveElementNames: {
         type: Array as PropType<string[]>,
-        default () {
-          return []
-        }
+        default: () => []
       },
 
       hoverObject: {
         type: Object as PropType<Object3D | null>,
-        default () {
-          return null
-        }
+        default: () => null
       },
 
       activeObject: {
         type: Object as PropType<Object3D | null>,
-        default () {
-          return null
-        }
+        default: () => null
       },
 
       hoverColor: {
         type: Object as PropType<Color>,
         default: () => new Color(0xffdede)
+      },
+
+      frameCallback: {
+        type: Function as PropType<undefined | ((time: number, delta: number) => void)>,
+        default: () => null
       }
     },
 
@@ -68,29 +67,40 @@
     },
 
     async setup (props, context: SetupContext) {
-      const canvas = useCanvas()
-      const renderer = useRenderer(canvas)
-      const camera = useCamera(100, 125, 300)
+      const { canvas, updateCanvas } = useResponsiveCanvas()
+      const { renderer, updateRenderer } = useResponsiveRenderer(canvas)
+
       const scene = useDefaultScene()
+      const anisotropy = renderer.capabilities.getMaxAnisotropy()
+      const interactiveGltf = await useInteractiveGLTF(props.modelUrl, props.interactiveElementNames, scene, anisotropy)
+
+      const { camera, updateCamera } = useResponsiveCamera(interactiveGltf.camera)
 
       const {
         composer,
         outlinePass,
-        effectFXAA
-      } = useComposer(renderer, scene, camera)
+        updateEffectComposer
+      } = useResponsiveEffectComposer(canvas, renderer, scene, camera)
 
       return {
+        ...interactiveGltf,
+        ...useBVHRaycaster(context),
+        ...useTrackedPointer(),
+        ...useOrbitControls(camera, interactiveGltf.cameraTarget, canvas, context),
+        ...useClickWithoutDragging(context),
+        ...useResizeListeners([
+          updateCanvas,
+          updateCamera,
+          updateEffectComposer,
+          updateRenderer
+        ]),
+
         canvas,
         composer,
         outlinePass,
         camera,
         scene,
-        ...useBVHRaycaster(context),
-        ...useTrackedPointer(),
-        ...useOrbitControls(camera, canvas),
-        ...useClickWithoutDragging(context),
-        ...useResponsiveHandlers(canvas, composer, renderer, effectFXAA, camera),
-        ...await useInteractiveGLTF(props.modelUrl, props.interactiveElementNames, scene)
+        clock: new Clock()
       }
     },
 
@@ -110,12 +120,18 @@
       'stopOrbitControls',
       'interactiveObjects',
       'frameObject',
-      'resetFrame'
+      'resetFrame',
+      'setAnimationTime',
+      'startAnimations',
+      'stopAnimations'
     ],
 
     emits: [
       'update:hover',
-      'click'
+      'click',
+      'frame',
+      'start-orbit-controls',
+      'stop-orbit-controls'
     ],
 
     watch: {
@@ -135,12 +151,14 @@
        * ! do not use reactivity here
        */
       render (time: number) {
+        const delta = this.clock.getDelta()
         this.raycaster.setFromCamera(this.pointer, this.camera)
-        this.orbitControls.update()
-        this.composer.render()
+        this.orbitControls.enabled && this.orbitControls.update(delta)
         this.updateIntersections(this.interactiveObjects, this.hoverObject)
-        updateAllTweens(time)
 
+        this.composer.render()
+        updateAllTweens(time)
+        this.frameCallback?.(time, delta)
         this.animationFrameId = window.requestAnimationFrame(this.render)
       },
 
@@ -150,7 +168,7 @@
 
       start () {
         this.startTrackingPointer()
-        this.startResponsivenessHandlers()
+        this.startResizeListener()
         this.$el.appendChild(this.canvas)
 
         this.animationFrameId = window.requestAnimationFrame(this.render)
@@ -162,8 +180,9 @@
           this.animationFrameId = null
         }
 
+        this.clipsMixer.timeScale = 0
         this.stopTrackingPointer()
-        this.stopResponsivenessHandlers()
+        this.stopResizeListener()
         this.canvas.remove()
       }
     }
@@ -173,16 +192,17 @@
 <style lang="scss">
   .OInterActiveScene {
     background-color: #a3a3a3;
+    width: 100%;
     height: 100vh;
-    inset: 0 0 0 0;
-    position: fixed;
-    width: 100vw;
-    z-index: -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   canvas {
     inset: 0 0 0 0;
-    position: fixed;
-    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: auto;
   }
 </style>

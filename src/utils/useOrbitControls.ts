@@ -1,53 +1,125 @@
 import { DURATION, ORBIT_MIN_DISTANCE } from '@/utils/constants'
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { Box3, PerspectiveCamera, Vector3 } from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import CameraControls from 'camera-controls'
+import {
+  Box3,
+  MathUtils,
+  Matrix4,
+  Object3D,
+  PerspectiveCamera,
+  Quaternion,
+  Raycaster,
+  Sphere,
+  Spherical,
+  Vector2,
+  Vector3,
+  Vector4
+} from 'three'
+import type { SetupContext } from 'vue'
 
-export function useOrbitControls (camera: PerspectiveCamera, canvas: HTMLCanvasElement) {
-  const orbitControls = new OrbitControls(camera, canvas)
+const subsetOfTHREE = {
+  Vector2,
+  Vector3,
+  Vector4,
+  Quaternion,
+  Matrix4,
+  Spherical,
+  Box3,
+  Sphere,
+  Raycaster,
+  MathUtils: {
+    DEG2RAD: MathUtils.DEG2RAD,
+    clamp: MathUtils.clamp
+  }
+}
+
+export function useOrbitControls (camera: PerspectiveCamera, cameraTarget: Object3D, canvas: HTMLCanvasElement, context: SetupContext) {
+  CameraControls.install({ THREE: subsetOfTHREE })
+  const orbitControls = new CameraControls(camera, canvas)
+  const copyVector = new Vector3()
+  const lastStartPosition = new Vector3()
+
   orbitControls.minDistance = ORBIT_MIN_DISTANCE
-  orbitControls.enableDamping = true
-  orbitControls.update()
+  orbitControls.maxPolarAngle = Math.PI / 2
+  orbitControls.mouseButtons.wheel = CameraControls.ACTION.NONE
+  orbitControls.enabled = false
+
+  function tweenOrbitFunction<T extends Record<string | number | symbol, unknown>> (method: Function, from: T, to: T) {
+    return new Promise(resolve => {
+      new Tween(from)
+        .duration(DURATION)
+        .easing(Easing.Cubic.InOut)
+        .to(to)
+        .onUpdate((updatedValues: T) => {
+          const args = Object.values(updatedValues) as []
+          method.apply(orbitControls, args)
+        })
+        .onComplete(resolve)
+        .start()
+    })
+  }
+
+  function tweenOrbitFunctionVec3 (method: Function, from: Vector3, to: Vector3) {
+    return tweenOrbitFunction(
+      method,
+      {
+        x: from.x,
+        y: from.y,
+        z: from.z
+      },
+      {
+        x: to.x,
+        y: to.y,
+        z: to.z
+      }
+    )
+  }
 
   return {
     orbitControls,
 
-    startOrbitControls (): void {
+    async startOrbitControls (): Promise<void> {
+      if (orbitControls.enabled) {
+        return
+      }
+
+      lastStartPosition.copy(camera.position)
+
+      await orbitControls.setPosition(lastStartPosition.x, lastStartPosition.y, lastStartPosition.z, false)
+      await orbitControls.setTarget(cameraTarget.position.x, cameraTarget.position.y, cameraTarget.position.z, false)
       orbitControls.enabled = true
+      context.emit('start-orbit-controls')
     },
 
-    stopOrbitControls (): void {
+    async stopOrbitControls (): Promise<void> {
+      const promises = []
+
+      orbitControls.getPosition(copyVector)
+      promises.push(tweenOrbitFunctionVec3(orbitControls.setPosition, copyVector, lastStartPosition))
+
+      orbitControls.getTarget(copyVector)
+      promises.push(tweenOrbitFunctionVec3(orbitControls.setTarget, copyVector, cameraTarget.position))
+
+      await Promise.all(promises)
+
       orbitControls.enabled = false
+      context.emit('stop-orbit-controls')
     },
 
-    frameObject (box: Box3, offset: Vector3 | undefined = undefined) {
+    frameObject (box: Box3, offset?: Vector3) {
       const boxSize = box.getSize(new Vector3()).length()
       const boxCenter = box.getCenter(new Vector3())
+      orbitControls.getTarget(copyVector)
 
       if (offset) {
         boxCenter.add(offset)
       }
 
-      new Tween(orbitControls)
-        .duration(DURATION)
-        .easing(Easing.Cubic.InOut)
-        .to({
-          target: boxCenter,
-          minDistance: ORBIT_MIN_DISTANCE
-        })
-        .onUpdate(() => orbitControls.update())
-        .onComplete(() => {
-          orbitControls.minDistance = ORBIT_MIN_DISTANCE
-          orbitControls.update()
-        })
-        .start()
+      tweenOrbitFunctionVec3(orbitControls.setTarget, copyVector, boxCenter)
 
       camera.near = boxSize / 100
       camera.far = boxSize * 100
       camera.updateProjectionMatrix()
-
-      orbitControls.maxDistance = boxSize * 10
-      orbitControls.update()
     }
   }
 }

@@ -1,28 +1,42 @@
 <template>
-  <div class="PHome">
+  <div
+    :data-hover="hoverObject !== null || undefined"
+    class="PHome"
+  >
     <Transition
       mode="out-in"
       name="fade"
     >
-      <Suspense @resolve="onSceneLoaded">
+      <Suspense>
         <template #default>
-          <OInterActiveScene
-            ref="scene"
-            :active-object="activeObject"
-            :hover-object="hoverObject"
-            :interactive-element-names="[
+          <div
+            :style="{'--scrollHeight': `${scrollHeight}px`}"
+            class="PHome__scrollWrapper"
+          >
+            <OInterActiveScene
+              ref="scene"
+              :active-object="activeObject"
+              :frame-callback="onFrame"
+              :hover-object="hoverObject"
+              :interactive-element-names="[
                   'top_floor',
                   'bottom_floor',
                   'roof'
                 ]"
-            model-url="/models/monica_lubenau/monica_lubenau.gltf"
-            @click="onClick"
-            @update:hover="onUpdateHover"
-          />
+              class="PHome__scene"
+              model-url="/models/monica_lubenau/monica_lubenau.gltf"
+              @click="onClick"
+              @start-orbit-controls="onOrbitControlsStart"
+              @stop-orbit-controls="onOrbitControlsStop"
+              @update:hover="onUpdateHover"
+            />
+          </div>
         </template>
 
         <template #fallback>
-          <ALoadingIndicator class="PHome__loading"/>
+          <div class="PHome__loading">
+            <ALoadingIndicator/>
+          </div>
         </template>
       </Suspense>
     </Transition>
@@ -41,6 +55,7 @@
       </Transition>
 
       <button
+        class="PHome__helpButton"
         type="button"
         @click="showHelp = !showHelp"
       >
@@ -69,7 +84,9 @@
   import MHoverDescription from '@/components/Molecule/MHoverDescription.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
   import QVisuallyHidden from '@/components/Quark/QVisuallyHidden.vue'
+  import { MAX_ANIMATION_FACTOR } from '@/utils/constants'
   import { useObjectDetailView } from '@/utils/useObjectDetailView'
+  import Lenis from '@studio-freight/lenis'
   import type { Object3D } from 'three'
   import { defineComponent, ref, toRaw } from 'vue'
 
@@ -87,6 +104,7 @@
       return {
         hoverObject: null as Object3D | null,
         activeObject: null as Object3D | null,
+        orbitEnabled: false,
         showHelp: false
       }
     },
@@ -116,12 +134,31 @@
       }
     },
 
-
     setup () {
       const scene = ref<InstanceType<typeof OInterActiveScene> | null>(null)
 
+      const lenis = new Lenis({
+        duration: 1.2,
+        // easing: Math.sin,
+        direction: 'vertical', // vertical, horizontal
+        gestureDirection: 'vertical', // vertical, horizontal, both
+        smooth: true,
+        mouseMultiplier: 1,
+        smoothTouch: false,
+        touchMultiplier: 2,
+        infinite: false
+      })
+
+      const config = {
+        frameCount: 300,
+        framesPerSecond: 30
+      }
+
       return {
         scene,
+        lenis,
+        duration: config.frameCount / config.framesPerSecond,
+        scrollHeight: config.frameCount * config.framesPerSecond,
         ...useObjectDetailView(scene)
       }
     },
@@ -136,6 +173,7 @@
         const rawPreviousActive = toRaw(previousActiveObject)
 
         this.toggleActiveObject(this.scene.interactiveObjects, rawNewActive, rawPreviousActive)
+        this.scene.setAnimationTime(1)
       }
     },
 
@@ -157,9 +195,46 @@
         this.hoverObject = object
       },
 
-      async onSceneLoaded () {
-        await this.$nextTick()
-        // this.$refs.scene.stopOrbitControls()
+      onOrbitControlsStart () {
+        this.orbitEnabled = true
+        this.lenis.start()
+      },
+
+      onOrbitControlsStop () {
+        this.orbitEnabled = false
+        this.lenis.start()
+      },
+
+      onFrame (time: number) {
+        if (!this.scene) {
+          return
+        }
+
+        if (this.lenis.stopped) {
+          return
+        }
+
+        this.lenis.raf(time)
+        const maxScrollDistance = this.scrollHeight - window.innerHeight
+        const scrollFactor = Math.min(MAX_ANIMATION_FACTOR, window.scrollY / maxScrollDistance) // factor 1 is start of next loop
+
+        if (scrollFactor >= MAX_ANIMATION_FACTOR) {
+          if (!this.orbitEnabled) {
+            this.lenis.stop()
+            this.scene.startOrbitControls()
+            this.scene.setAnimationTime(MAX_ANIMATION_FACTOR * this.duration)
+          }
+
+          return
+        }
+
+        if (this.orbitEnabled) {
+          this.lenis.stop()
+          this.scene.stopOrbitControls()
+          return
+        }
+
+        this.scene.setAnimationTime(scrollFactor * this.duration)
       }
     }
   })
@@ -169,17 +244,36 @@
   @use "@/variables" as *;
 
   .PHome {
-    background-color: #181818;
-    height: 100vh;
-    inset: 0 0 0 0;
-    position: fixed;
-    width: 100vw;
+    width: 100%;
+
+    &[data-hover] {
+      cursor: pointer;
+    }
 
     &__loading {
-      left: 50%;
+      background-color: #181818;
       position: fixed;
-      top: 50%;
-      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    &__scrollWrapper {
+      position: relative;
+      height: var(--scrollHeight);
+    }
+
+    &__scene {
+      position: sticky;
+      top: 0;
+    }
+
+    &__helpButton {
+      position: fixed;
+      top: spacer();
+      left: spacer();
     }
   }
 </style>
