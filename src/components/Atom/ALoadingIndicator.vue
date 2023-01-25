@@ -29,15 +29,15 @@
     $duration-third: $duration / 3;
 
     display: grid;
+    gap: $gap;
+    grid-template-columns: 1fr 1fr 1fr;
     height: $size;
     position: relative;
     width: $size;
-    gap: $gap;
-    grid-template-columns: 1fr 1fr 1fr;
 
     div {
       animation: lds-grid $duration linear infinite;
-      background: #fff;
+      background: var(--color-light);
       border-radius: 50%;
       height: $dotSize;
       width: $dotSize;

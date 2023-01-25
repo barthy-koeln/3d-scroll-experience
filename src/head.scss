@@ -1,5 +1,22 @@
 @use "@/_variables.scss" as *;
 
+:root {
+  --spacer: #{$spacer};
+
+  --color-dark: #181818;
+  --color-light: #e7d7c1;
+
+  --color-primary: #8c1c13;
+  --color-primary-light: #bf4342;
+
+  --color-secondary: #735751;
+  --color-secondary-light: #a78a7f;
+
+  @each $index, $size in $spacers {
+    --spacer-#{$index}: #{$size};
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -15,8 +32,9 @@
 
 html,
 body {
-  min-height: 100%;
+  background-color: var(--color-dark);
   height: auto;
+  min-height: 100%;
 }
 
 body {
@@ -24,9 +42,9 @@ body {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  overflow-y: scroll;
   overflow-x: hidden;
+  overflow-y: scroll;
+  text-rendering: optimizeLegibility;
 }
 
 .fade-enter-active,

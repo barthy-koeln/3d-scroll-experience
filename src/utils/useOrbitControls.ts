@@ -1,4 +1,4 @@
-import { DURATION, ORBIT_MIN_DISTANCE } from '@/utils/constants'
+import { DURATION } from '@/utils/constants'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import CameraControls from 'camera-controls'
 import {
@@ -39,9 +39,9 @@ export function useOrbitControls (camera: PerspectiveCamera, cameraTarget: Objec
   const copyVector = new Vector3()
   const lastStartPosition = new Vector3()
 
-  orbitControls.minDistance = ORBIT_MIN_DISTANCE
+  orbitControls.minDistance = 150
+  orbitControls.maxDistance = 750
   orbitControls.maxPolarAngle = Math.PI / 2
-  orbitControls.mouseButtons.wheel = CameraControls.ACTION.NONE
   orbitControls.enabled = false
 
   function tweenOrbitFunction<T extends Record<string | number | symbol, unknown>> (method: Function, from: T, to: T) {

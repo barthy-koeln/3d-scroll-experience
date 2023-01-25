@@ -32,16 +32,21 @@
   .MHoverDescription {
     background-color: #dedede;
     border-radius: 4px;
-    bottom: spacer(3);
     box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
     gap: spacer(3);
+    left: 0;
     max-width: 256px;
     padding: spacer(3);
+    pointer-events: none;
     position: fixed;
-    right: spacer(3);
-    transform: translate3d(0, 0, 1px);
+    top: 0;
+    transform: translate3d(var(--pointer-x), var(--pointer-y), 1px);
+    transition: $duration $easing;
+    transition-property: opacity, transform;
+    user-select: none;
+    will-change: transform;
     z-index: 10;
   }
 </style>

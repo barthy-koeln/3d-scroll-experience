@@ -1,45 +1,32 @@
 <template>
   <div
     :data-hover="hoverObject !== null || undefined"
+    :style="pointerStyles"
     class="PHome"
   >
-    <Transition
-      mode="out-in"
-      name="fade"
+    <div
+      :style="{'--scrollHeight': `${scrollHeight}px`}"
+      class="PHome__scrollWrapper"
     >
-      <Suspense>
-        <template #default>
-          <div
-            :style="{'--scrollHeight': `${scrollHeight}px`}"
-            class="PHome__scrollWrapper"
-          >
-            <OInterActiveScene
-              ref="scene"
-              :active-object="activeObject"
-              :frame-callback="onFrame"
-              :hover-object="hoverObject"
-              :interactive-element-names="[
+      <OInterActiveScene
+        ref="scene"
+        :active-object="activeObject"
+        :frame-callback="onFrame"
+        :hover-object="hoverObject"
+        :interactive-element-names="[
                   'top_floor',
                   'bottom_floor',
                   'roof'
                 ]"
-              class="PHome__scene"
-              model-url="/models/monica_lubenau/monica_lubenau.gltf"
-              @click="onClick"
-              @start-orbit-controls="onOrbitControlsStart"
-              @stop-orbit-controls="onOrbitControlsStop"
-              @update:hover="onUpdateHover"
-            />
-          </div>
-        </template>
-
-        <template #fallback>
-          <div class="PHome__loading">
-            <ALoadingIndicator/>
-          </div>
-        </template>
-      </Suspense>
-    </Transition>
+        class="PHome__scene"
+        model-url="/models/monica_lubenau/monica_lubenau.gltf"
+        @click="onClick"
+        @start-orbit-controls="onOrbitControlsStart"
+        @stop-orbit-controls="onOrbitControlsStop"
+        @pointermove.passive="onPointerMove"
+        @update:hover="onUpdateHover"
+      />
+    </div>
 
     <div>
       <Transition
@@ -75,12 +62,26 @@
           />
         </template>
       </Transition>
+
+      <Transition
+        mode="out-in"
+        name="fade"
+      >
+        <template v-if="hasScrolledThrough">
+          <AButton
+            class="PHome__interactivityButton"
+            @click="onToggleInteractivity"
+          >
+            {{ this.interactivityEnabled ? 'Enable Scrolling Mode' : 'Enable Interactivity Mode' }}
+          </AButton>
+        </template>
+      </Transition>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-  import ALoadingIndicator from '@/components/Atom/ALoadingIndicator.vue'
+  import AButton from '@/components/Atom/AButton.vue'
   import MHoverDescription from '@/components/Molecule/MHoverDescription.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
   import QVisuallyHidden from '@/components/Quark/QVisuallyHidden.vue'
@@ -94,9 +95,9 @@
     name: 'PHome',
 
     components: {
+      AButton,
       QVisuallyHidden,
       MHoverDescription,
-      ALoadingIndicator,
       OInterActiveScene
     },
 
@@ -104,8 +105,10 @@
       return {
         hoverObject: null as Object3D | null,
         activeObject: null as Object3D | null,
-        orbitEnabled: false,
-        showHelp: false
+        hasScrolledThrough: false,
+        interactivityEnabled: false,
+        showHelp: false,
+        pointerStyles: {}
       }
     },
 
@@ -139,7 +142,6 @@
 
       const lenis = new Lenis({
         duration: 1.2,
-        // easing: Math.sin,
         direction: 'vertical', // vertical, horizontal
         gestureDirection: 'vertical', // vertical, horizontal, both
         smooth: true,
@@ -196,12 +198,12 @@
       },
 
       onOrbitControlsStart () {
-        this.orbitEnabled = true
+        this.interactivityEnabled = true
         this.lenis.start()
       },
 
       onOrbitControlsStop () {
-        this.orbitEnabled = false
+        this.interactivityEnabled = false
         this.lenis.start()
       },
 
@@ -210,31 +212,52 @@
           return
         }
 
-        if (this.lenis.stopped) {
+        if (this.lenis.stopped || this.interactivityEnabled) {
           return
         }
 
         this.lenis.raf(time)
-        const maxScrollDistance = this.scrollHeight - window.innerHeight
-        const scrollFactor = Math.min(MAX_ANIMATION_FACTOR, window.scrollY / maxScrollDistance) // factor 1 is start of next loop
+        const maxScrollDistance = this.scrollHeight - window.innerHeight // TODO make responsive
+        const scrollFactor = Math.min(MAX_ANIMATION_FACTOR, window.scrollY / maxScrollDistance)
+        const hasScrolledThrough = scrollFactor >= MAX_ANIMATION_FACTOR
 
-        if (scrollFactor >= MAX_ANIMATION_FACTOR) {
-          if (!this.orbitEnabled) {
-            this.lenis.stop()
-            this.scene.startOrbitControls()
-            this.scene.setAnimationTime(MAX_ANIMATION_FACTOR * this.duration)
-          }
-
-          return
-        }
-
-        if (this.orbitEnabled) {
-          this.lenis.stop()
-          this.scene.stopOrbitControls()
-          return
+        if (hasScrolledThrough !== this.hasScrolledThrough) {
+          this.hasScrolledThrough = hasScrolledThrough
         }
 
         this.scene.setAnimationTime(scrollFactor * this.duration)
+      },
+
+      onToggleInteractivity () {
+        this.interactivityEnabled ? this.disableInteractivity() : this.enableInteractivity()
+      },
+
+      enableInteractivity () {
+        if (!this.scene) {
+          return
+        }
+
+        this.lenis.stop()
+        this.scene.startOrbitControls()
+        this.scene.startRaycasting()
+        this.scene.setAnimationTime(MAX_ANIMATION_FACTOR * this.duration)
+      },
+
+      disableInteractivity () {
+        if (!this.scene) {
+          return
+        }
+
+        this.lenis.stop()
+        this.scene.stopOrbitControls()
+        this.scene.stopRaycasting()
+      },
+
+      onPointerMove (event: PointerEvent) {
+        this.pointerStyles = {
+          '--pointer-x': event.clientX + 5 + 'px',
+          '--pointer-y': event.clientY + 5 + 'px'
+        }
       }
     }
   })
@@ -250,19 +273,9 @@
       cursor: pointer;
     }
 
-    &__loading {
-      background-color: #181818;
-      position: fixed;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-    }
-
     &__scrollWrapper {
-      position: relative;
       height: var(--scrollHeight);
+      position: relative;
     }
 
     &__scene {
@@ -271,9 +284,16 @@
     }
 
     &__helpButton {
+      left: spacer();
       position: fixed;
       top: spacer();
-      left: spacer();
+    }
+
+    &__interactivityButton {
+      bottom: spacer(5);
+      left: 50%;
+      position: fixed;
+      transform: translateX(-50%);
     }
   }
 </style>

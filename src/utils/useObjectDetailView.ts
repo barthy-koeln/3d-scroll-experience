@@ -4,7 +4,7 @@ import { Easing, Tween } from '@tweenjs/tween.js'
 import { Box3, Object3D, Vector3 } from 'three'
 import type { Ref } from 'vue'
 
-const activeObjectOffset = new Vector3(125, 0, 0)
+const activeObjectOffset = new Vector3(125, 5, 0)
 
 export function useObjectDetailView (scene: Ref<InstanceType<typeof OInterActiveScene> | null>) {
 

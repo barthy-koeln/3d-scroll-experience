@@ -95,6 +95,7 @@
           updateRenderer
         ]),
 
+        renderer,
         canvas,
         composer,
         outlinePass,
@@ -123,7 +124,9 @@
       'resetFrame',
       'setAnimationTime',
       'startAnimations',
-      'stopAnimations'
+      'stopAnimations',
+      'startRaycasting',
+      'stopRaycasting'
     ],
 
     emits: [
@@ -155,10 +158,12 @@
         this.raycaster.setFromCamera(this.pointer, this.camera)
         this.orbitControls.enabled && this.orbitControls.update(delta)
         this.updateIntersections(this.interactiveObjects, this.hoverObject)
-
-        this.composer.render()
         updateAllTweens(time)
+
         this.frameCallback?.(time, delta)
+
+        this.renderer.render(this.scene, this.camera)
+
         this.animationFrameId = window.requestAnimationFrame(this.render)
       },
 
@@ -191,18 +196,18 @@
 
 <style lang="scss">
   .OInterActiveScene {
-    background-color: #a3a3a3;
-    width: 100%;
-    height: 100vh;
-    display: flex;
     align-items: center;
+    background-color: #c3d2d9;
+    display: flex;
+    height: 100vh;
     justify-content: center;
+    width: 100%;
   }
 
   canvas {
+    height: auto;
     inset: 0 0 0 0;
     position: absolute;
     width: 100%;
-    height: auto;
   }
 </style>

@@ -1,5 +1,5 @@
 import type { ResizeListenerCallback } from '@/utils/useResizeListeners'
-import { PerspectiveCamera } from 'three'
+import { DirectionalLight, PerspectiveCamera } from 'three'
 
 type ResponsiveCamera = {
   camera: PerspectiveCamera,
@@ -10,6 +10,10 @@ export function useResponsiveCamera (cameraIn?: PerspectiveCamera): ResponsiveCa
   const camera = cameraIn || new PerspectiveCamera()
 
   camera.userData.initialFov = camera.fov
+
+  const light = new DirectionalLight(0xffffff, 1)
+  light.position.set(0, 0, 1)
+  camera.add(light)
 
   return {
     camera,

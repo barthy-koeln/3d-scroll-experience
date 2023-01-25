@@ -23,13 +23,27 @@ export function useBVHRaycaster (context: SetupContext) {
   const raycaster = new Raycaster()
   raycaster.firstHitOnly = true
 
+  let enabled = false
+
   return {
     raycaster,
+
+    startRaycasting () {
+      enabled = true
+    },
+
+    stopRaycasting () {
+      enabled = false
+    },
 
     /**
      * ! do not use reactivity here
      */
     updateIntersections (intersectionTargets: Object3D[], hoverObject: Object3D | null) {
+      if (!enabled) {
+        return
+      }
+
       const intersects = raycaster.intersectObjects(intersectionTargets)
 
       if (!intersects.length) {
@@ -43,7 +57,7 @@ export function useBVHRaycaster (context: SetupContext) {
       const firstIntersection = intersects[0]
       const interactiveParent = getClosestInteractiveParent(intersectionTargets, firstIntersection.object)
 
-      if (interactiveParent !== hoverObject) {
+      if (interactiveParent?.uuid !== hoverObject?.uuid) {
         context.emit('update:hover', interactiveParent)
       }
     }

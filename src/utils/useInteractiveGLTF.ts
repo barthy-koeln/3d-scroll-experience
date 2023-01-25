@@ -28,7 +28,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
 
     if (child instanceof Mesh) {
       child.material.envMap = scene.environment
-      child.material.envMapIntensity = 2
+      child.material.envMapIntensity = 1
 
       for (const map of adjustableMaps) {
         const texture = child.material[map]

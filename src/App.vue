@@ -1,45 +1,52 @@
 <template>
-  <RouterView/>
+  <RouterView
+    v-slot="{ Component }"
+    class="App"
+  >
+    <template v-if="Component">
+      <Transition
+        appear
+        mode="out-in"
+        name="fade"
+      >
+        <KeepAlive>
+          <Suspense>
+            <Component :is="Component"></Component>
+
+            <!-- loading state -->
+            <template #fallback>
+              <div class="App__loading">
+                <ALoadingIndicator/>
+              </div>
+            </template>
+          </Suspense>
+        </KeepAlive>
+      </Transition>
+    </template>
+  </RouterView>
 </template>
 
 <script
   lang="ts"
   setup
 >
+  import ALoadingIndicator from '@/components/Atom/ALoadingIndicator.vue'
   import { RouterView } from 'vue-router'
 </script>
 
 <style lang="scss">
   @use "variables" as *;
 
-  *,
-  *::before,
-  *::after {
-    background: transparent;
-    border: 0;
-    box-sizing: border-box;
-    font-style: normal;
-    font-weight: normal;
-    margin: 0;
-    padding: 0;
-    position: relative;
-  }
+  .App {
 
-  body {
-    font-size: 16px;
-    -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity $duration $easing;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
+    &__loading {
+      align-items: center;
+      background-color: var(--color-dark);
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      position: fixed;
+      width: 100%;
+    }
   }
 </style>
