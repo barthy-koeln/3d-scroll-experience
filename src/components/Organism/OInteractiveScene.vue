@@ -11,6 +11,7 @@
   import { useBVHRaycaster } from '@/utils/useBVHRaycaster'
   import { useClickWithoutDragging } from '@/utils/useClickWithoutDragging'
   import { useDefaultScene } from '@/utils/useDefaultScene'
+  import { useEnvMap } from '@/utils/useEnvMap'
   import { useInteractiveGLTF } from '@/utils/useInteractiveGLTF'
   import { useOrbitControls } from '@/utils/useOrbitControls'
   import { useResizeListeners } from '@/utils/useResizeListeners'
@@ -70,7 +71,8 @@
       const { canvas, updateCanvas } = useResponsiveCanvas()
       const { renderer, updateRenderer } = useResponsiveRenderer(canvas)
 
-      const scene = useDefaultScene()
+      const envMap = await useEnvMap(renderer)
+      const scene = useDefaultScene(envMap)
       const anisotropy = renderer.capabilities.getMaxAnisotropy()
       const interactiveGltf = await useInteractiveGLTF(props.modelUrl, props.interactiveElementNames, scene, anisotropy)
 
@@ -197,7 +199,7 @@
 <style lang="scss">
   .OInterActiveScene {
     align-items: center;
-    background-color: #c3d2d9;
+    background-color: #f4e9e2;
     display: flex;
     height: 100vh;
     justify-content: center;

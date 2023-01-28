@@ -19,7 +19,7 @@
                   'roof'
                 ]"
         class="PHome__scene"
-        model-url="/models/monica_lubenau/monica_lubenau.gltf"
+        model-url="/models/turntable/turntable.web.gltf"
         @click="onClick"
         @start-orbit-controls="onOrbitControlsStart"
         @stop-orbit-controls="onOrbitControlsStop"
@@ -72,7 +72,7 @@
             class="PHome__interactivityButton"
             @click="onToggleInteractivity"
           >
-            {{ this.interactivityEnabled ? 'Enable Scrolling Mode' : 'Enable Interactivity Mode' }}
+            {{ interactivityEnabled ? 'Enable Scrolling Mode' : 'Enable Interactivity Mode' }}
           </AButton>
         </template>
       </Transition>
@@ -152,7 +152,7 @@
       })
 
       const config = {
-        frameCount: 300,
+        frameCount: 390,
         framesPerSecond: 30
       }
 

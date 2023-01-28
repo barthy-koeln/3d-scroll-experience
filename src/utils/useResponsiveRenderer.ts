@@ -1,5 +1,5 @@
 import type { ResizeListenerCallback } from '@/utils/useResizeListeners'
-import { WebGLRenderer } from 'three'
+import { PCFSoftShadowMap, sRGBEncoding, WebGLRenderer } from 'three'
 
 type ResponsiveRenderer = {
   renderer: WebGLRenderer,
@@ -16,6 +16,9 @@ export function useResponsiveRenderer (canvas: HTMLCanvasElement): ResponsiveRen
   )
 
   renderer.physicallyCorrectLights = true
+  renderer.shadowMap.enabled = true
+  renderer.outputEncoding = sRGBEncoding
+  renderer.shadowMap.type = PCFSoftShadowMap
 
   return {
     renderer,

@@ -1,13 +1,25 @@
-import nx from '@/assets/envmap/nx.png'
-import ny from '@/assets/envmap/ny.png'
-import nz from '@/assets/envmap/nz.png'
-import px from '@/assets/envmap/px.png'
-import py from '@/assets/envmap/py.png'
-import pz from '@/assets/envmap/pz.png'
-import type { CubeTexture } from 'three'
-import { CubeTextureLoader } from 'three'
+import { HalfFloatType, PMREMGenerator, Texture, WebGLRenderer } from 'three'
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
 
-export function useEnvMap (): CubeTexture {
-  const envMapLoader = new CubeTextureLoader()
-  return envMapLoader.load([px, nx, py, ny, pz, nz])
+export async function useEnvMap (renderer: WebGLRenderer): Promise<Texture> {
+  const pmremGenerator = new PMREMGenerator(renderer)
+  const rgbeLoader = new RGBELoader()
+
+  pmremGenerator.compileEquirectangularShader()
+  return new Promise(function (resolve, reject) {
+    rgbeLoader
+      .setDataType(HalfFloatType)
+      .load('/envmap/brown_photostudio_02_4k.hdr',
+        function (texture) {
+          const envMap = pmremGenerator.fromEquirectangular(texture).texture
+
+          texture.dispose()
+          pmremGenerator.dispose()
+
+          resolve(envMap)
+        },
+        undefined,
+        reject
+      )
+  })
 }

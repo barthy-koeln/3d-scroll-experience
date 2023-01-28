@@ -26,7 +26,7 @@
     $dotSize: 20px;
     $size: 3*$dotSize + 2*$gap;
     $duration: 1.2s;
-    $duration-third: $duration / 3;
+    $duration-third: math.div($duration, 3);
 
     display: grid;
     gap: $gap;

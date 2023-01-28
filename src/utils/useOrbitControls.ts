@@ -39,8 +39,8 @@ export function useOrbitControls (camera: PerspectiveCamera, cameraTarget: Objec
   const copyVector = new Vector3()
   const lastStartPosition = new Vector3()
 
-  orbitControls.minDistance = 150
-  orbitControls.maxDistance = 750
+  orbitControls.minDistance = 10
+  orbitControls.maxDistance = 170
   orbitControls.maxPolarAngle = Math.PI / 2
   orbitControls.enabled = false
 

@@ -1,5 +1,5 @@
 import { useCompressedGLTFLoader } from '@/utils/useCompressedGLTFLoader'
-import { AnimationMixer, Box3, Mesh, Object3D, PerspectiveCamera, Scene } from 'three'
+import { AnimationMixer, Box3, Light, Mesh, Object3D, PerspectiveCamera, Scene } from 'three'
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 
 export interface InteractiveGltf {
@@ -22,13 +22,21 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
   }
 
   function adjustVisibleItem (child: Object3D) {
-    if (child.name === 'infinitePlane') {
+    if (child instanceof Light) {
+      child.intensity *= .01
+      child.castShadow = true
+      child.shadow.mapSize.width = 512
+      child.shadow.mapSize.height = 512
+      child.shadow.camera.near = 0.1
+      child.shadow.camera.far = 5000
+      child.shadow.bias = -0.0001
       return
     }
 
     if (child instanceof Mesh) {
-      child.material.envMap = scene.environment
-      child.material.envMapIntensity = 1
+      child.castShadow = true
+      child.receiveShadow = true
+      child.material.envMapIntensity = .5
 
       for (const map of adjustableMaps) {
         const texture = child.material[map]
@@ -52,8 +60,8 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     }
 
     const initialBox = new Box3().setFromObject(gltf.scene)
-    const camera = gltf.scene.getObjectByName('Camera') as PerspectiveCamera
-    const cameraTarget = gltf.scene.getObjectByName('Empty') as PerspectiveCamera
+    const camera = gltf.scene.getObjectByName('camera') as PerspectiveCamera
+    const cameraTarget = gltf.scene.getObjectByName('cameraTarget') as PerspectiveCamera
 
     gltf.scene.traverseVisible(adjustVisibleItem)
     scene.add(gltf.scene)
