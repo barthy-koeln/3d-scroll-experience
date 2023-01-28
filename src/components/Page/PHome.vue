@@ -1,6 +1,7 @@
 <template>
   <div
     :data-hover="hoverObject !== null || undefined"
+    :data-interactive="interactivityEnabled || undefined"
     :style="pointerStyles"
     class="PHome"
   >
@@ -29,75 +30,112 @@
     </div>
 
     <div>
-      <Transition
-        mode="out-in"
-        name="fade"
-      >
-        <template v-if="hoverMeta">
-          <MHoverDescription
-            :description="hoverMeta.description"
-            :title="hoverMeta.title"
-          />
-        </template>
-      </Transition>
+      <MHelpModal/>
 
-      <button
-        class="PHome__helpButton"
-        type="button"
-        @click="showHelp = !showHelp"
-      >
-        <strong>&quest;</strong>
-
-        <QVisuallyHidden>Help</QVisuallyHidden>
-      </button>
-
-      <Transition
-        mode="out-in"
-        name="fade"
-      >
-        <template v-if="showHelp">
-          <MHoverDescription
-            description="Left mouse button to rotate, right mouse button to pan. Middle mouse button and wheel to zoom."
-            title="Camera Controls"
-          />
-        </template>
-      </Transition>
-
-      <Transition
-        mode="out-in"
-        name="fade"
-      >
-        <template v-if="hasScrolledThrough">
-          <AButton
-            class="PHome__interactivityButton"
-            @click="onToggleInteractivity"
-          >
-            {{ interactivityEnabled ? 'Enable Scrolling Mode' : 'Enable Interactivity Mode' }}
-          </AButton>
-        </template>
-      </Transition>
+      <OAppearList
+        :current-frame="currentFrame"
+        :items="scrollRevealItems"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
   import AButton from '@/components/Atom/AButton.vue'
-  import MHoverDescription from '@/components/Molecule/MHoverDescription.vue'
+  import AScrollHint from '@/components/Atom/AScrollHint.vue'
+  import MFeaturePreview from '@/components/Molecule/MFeaturePreview.vue'
+  import MHeader from '@/components/Molecule/MHeader.vue'
+  import MHelpModal from '@/components/Molecule/MHelpModal.vue'
+  import type { ScrollRevealItem } from '@/components/Organism/OAppearList.vue'
+  import OAppearList from '@/components/Organism/OAppearList.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
-  import QVisuallyHidden from '@/components/Quark/QVisuallyHidden.vue'
   import { MAX_ANIMATION_FACTOR } from '@/utils/constants'
   import { useObjectDetailView } from '@/utils/useObjectDetailView'
   import Lenis from '@studio-freight/lenis'
   import type { Object3D } from 'three'
   import { defineComponent, ref, toRaw } from 'vue'
 
+  const staticRevealItems = [
+    {
+      key: 'header',
+      component: MHeader,
+      startFrame: 0,
+      endFrame: 40,
+      props: {
+        title: 'Hold My Sleeve!',
+        subTitle: 'Beautiful and space-saving cover holder'
+      }
+    },
+    {
+      key: 'scroll-hint',
+      component: AScrollHint,
+      startFrame: 0,
+      endFrame: 40,
+      props: {}
+    },
+    {
+      key: 'step-1',
+      component: MFeaturePreview,
+      startFrame: 5,
+      endFrame: 55,
+      props: {
+        index: 0,
+        title: 'Remove The Dust Cover',
+        paragraph: 'It\'s not 1960 and these things just don\'t do enough good to justify the ugliness.'
+      }
+    },
+    {
+      key: 'step-2',
+      component: MFeaturePreview,
+      startFrame: 75,
+      endFrame: 125,
+      props: {
+        index: 1,
+        title: 'Clip The Clippy Things',
+        paragraph: 'They will fit right into the dust cover\'s joints.'
+      }
+    },
+    {
+      key: 'step-3',
+      component: MFeaturePreview,
+      startFrame: 125,
+      endFrame: 175,
+      props: {
+        index: 2,
+        title: 'Get Your Wax Out',
+        paragraph: 'Don\'t forget to wipe.'
+      }
+    },
+    {
+      key: 'step-4',
+      component: MFeaturePreview,
+      startFrame: 205,
+      endFrame: 255,
+      props: {
+        index: 3,
+        title: 'Place The Sleeve Into The Clips',
+        paragraph: 'This will fit sleeves with up to two 220g vinyls. If your sleeve is too thick, you might be able to open it like a book and reduce the size.'
+      }
+    },
+    {
+      key: 'step-5',
+      component: MFeaturePreview,
+      startFrame: 340,
+      endFrame: 390,
+      props: {
+        index: 4,
+        title: 'Lean Back & Enjoy The Music',
+        paragraph: 'And take some time to appreciate that beautiful cover.'
+      }
+    }
+  ]
+
   export default defineComponent({
     name: 'PHome',
 
     components: {
-      AButton,
-      QVisuallyHidden,
-      MHoverDescription,
+      OAppearList,
+      MHelpModal,
       OInterActiveScene
     },
 
@@ -105,35 +143,32 @@
       return {
         hoverObject: null as Object3D | null,
         activeObject: null as Object3D | null,
-        hasScrolledThrough: false,
         interactivityEnabled: false,
+        currentFrame: 0,
         showHelp: false,
         pointerStyles: {}
       }
     },
 
     computed: {
-      hoverMeta () {
-        if (!this.hoverObject) {
-          return null
-        }
+      scrollRevealItems (): ScrollRevealItem[] {
+        return [
+          ...staticRevealItems,
+          {
+            key: 'interactivity-button',
+            component: AButton,
+            startFrame: 390,
+            endFrame: 999,
+            class: 'PHome__interactivityButton',
+            props: {
+              label: this.interactivityEnabled ? 'Enable Scrolling Mode' : 'Enable Interactivity Mode'
+            },
 
-        return {
-          'top_floor': {
-            title: 'Top Floor',
-            description: 'Three bedrooms, two baths and a luxurious balcony.'
-          },
-
-          'roof': {
-            title: 'Roof',
-            description: 'It will probably fall to pieces as soon as it snows, since nothing can fall off the side. Good thing this looks like a Californian Villa.'
-          },
-
-          'bottom_floor': {
-            title: 'Bottom Floor',
-            description: 'Large open living room and kitchen, household utility rooms and a guest bedroom.'
+            on: {
+              click: this.onToggleInteractivity
+            }
           }
-        }[this.hoverObject.name]
+        ]
       }
     },
 
@@ -161,6 +196,7 @@
         lenis,
         duration: config.frameCount / config.framesPerSecond,
         scrollHeight: config.frameCount * config.framesPerSecond,
+        ...config,
         ...useObjectDetailView(scene)
       }
     },
@@ -219,10 +255,10 @@
         this.lenis.raf(time)
         const maxScrollDistance = this.scrollHeight - window.innerHeight // TODO make responsive
         const scrollFactor = Math.min(MAX_ANIMATION_FACTOR, window.scrollY / maxScrollDistance)
-        const hasScrolledThrough = scrollFactor >= MAX_ANIMATION_FACTOR
 
-        if (hasScrolledThrough !== this.hasScrolledThrough) {
-          this.hasScrolledThrough = hasScrolledThrough
+        const currentFrame = Math.round(scrollFactor * this.frameCount)
+        if (currentFrame !== this.currentFrame) {
+          this.currentFrame = currentFrame
         }
 
         this.scene.setAnimationTime(scrollFactor * this.duration)
@@ -269,6 +305,10 @@
   .PHome {
     width: 100%;
 
+    &[data-interactive] {
+      cursor: move;
+    }
+
     &[data-hover] {
       cursor: pointer;
     }
@@ -281,12 +321,6 @@
     &__scene {
       position: sticky;
       top: 0;
-    }
-
-    &__helpButton {
-      left: spacer();
-      position: fixed;
-      top: spacer();
     }
 
     &__interactivityButton {

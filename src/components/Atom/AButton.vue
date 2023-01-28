@@ -4,7 +4,13 @@
     type="button"
     v-bind="$attrs"
   >
-    <slot/>
+    <template v-if="label">
+      {{ label }}
+    </template>
+
+    <template v-else>
+      <slot/>
+    </template>
   </button>
 </template>
 
@@ -12,7 +18,14 @@
   import { defineComponent } from 'vue'
 
   export default defineComponent({
-    name: 'AButton'
+    name: 'AButton',
+
+    props: {
+      label: {
+        type: String,
+        default: undefined
+      }
+    }
   })
 </script>
 

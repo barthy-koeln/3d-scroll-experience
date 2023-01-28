@@ -9,7 +9,7 @@ export async function useEnvMap (renderer: WebGLRenderer): Promise<Texture> {
   return new Promise(function (resolve, reject) {
     rgbeLoader
       .setDataType(HalfFloatType)
-      .load('/envmap/brown_photostudio_02_4k.hdr',
+      .load('/envmap/brown_photostudio_02_1k.hdr',
         function (texture) {
           const envMap = pmremGenerator.fromEquirectangular(texture).texture
 

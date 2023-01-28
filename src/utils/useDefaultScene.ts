@@ -67,9 +67,7 @@ export function useDefaultScene (envMap: Texture): Scene {
     debugPrepared = true
   }
 
-
-  // noinspection TypeScriptUnresolvedVariable
-  window.debug = {
+  const debug = {
     debugWireframe () {
       setDebug(mesh => {
         mesh.material.wireframe = true
