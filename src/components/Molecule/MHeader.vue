@@ -35,9 +35,9 @@
     gap: var(--spacer);
     left: 50%;
     max-width: 90vw;
-    position: fixed;
+    position: absolute;
     text-align: center;
-    top: 6em;
+    top: 4vh;
     transform: translateX(-50%);
     width: max-content;
 

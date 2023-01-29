@@ -44,10 +44,13 @@
   @use "@/_variables.scss" as *;
 
   .MFeaturePreview {
+    background-image: linear-gradient(45deg, var(--color-secondary) 0%, var(--color-primary) 100%);
     display: flex;
     flex-direction: column;
     gap: var(--spacer);
-    position: fixed;
+    overflow: hidden;
+    padding: 64px;
+    position: absolute;
     width: 512px;
 
     &__title {
@@ -62,28 +65,33 @@
     }
 
     &[data-section="0"] {
-      bottom: 40vh;
-      left: 5vw;
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      left: 4%;
+      top: 4%;
     }
 
     &[data-section="1"] {
-      bottom: 70vh;
-      right: 5vw;
+      border-radius: 76% 24% 78% 22% / 30% 70% 30% 70%;
+      bottom: 70%;
+      right: 4%;
     }
 
     &[data-section="2"] {
-      bottom: 62.5vh;
-      left: 5vw;
+      border-radius: 22% 78% 54% 46% / 55% 55% 45% 45%;
+      bottom: 62.5%;
+      left: 20%;
     }
 
     &[data-section="3"] {
-      bottom: 25vh;
-      right: 5vw;
+      border-radius: 26% 74% 70% 30% / 74% 79% 21% 26%;
+      bottom: 25%;
+      right: 4%;
     }
 
     &[data-section="4"] {
-      left: 5vw;
-      top: 5vh;
+      border-radius: 24% 76% 63% 37% / 81% 55% 45% 19%;
+      bottom: 4%;
+      left: 4%;
     }
   }
 </style>

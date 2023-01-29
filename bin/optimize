@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
 
-mogrify -format webp -quality 80 -resize 2048x2048\> public/models/**/*.jpg
-mogrify -format webp -quality 80 -resize 2048x2048\> public/models/**/*.jpeg
-mogrify -format webp -quality 80 -resize 2048x2048\> public/models/**/*.png
-
-sed -i -e 's/\.jpg/.webp/g' public/models/**/*.gltf
-sed -i -e 's/\.jpeg/.webp/g' public/models/**/*.gltf
-sed -i -e 's/\.png/.webp/g' public/models/**/*.gltf
-
-rm public/models/**/*.jpg
-rm public/models/**/*.jpeg
-rm public/models/**/*.png
+mogrify -quality 90 -resize 2048x2048\> public/models/**/*.jpg
+mogrify -quality 90 -resize 2048x2048\> public/models/**/*.png
 
 du -sch public/models/turntable/*

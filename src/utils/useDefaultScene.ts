@@ -67,7 +67,7 @@ export function useDefaultScene (envMap: Texture): Scene {
     debugPrepared = true
   }
 
-  const debug = {
+  (window as any).debug = {
     debugWireframe () {
       setDebug(mesh => {
         mesh.material.wireframe = true

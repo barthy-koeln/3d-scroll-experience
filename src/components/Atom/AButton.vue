@@ -40,6 +40,7 @@
     cursor: pointer;
     padding-block: spacer(3);
     padding-inline: spacer(4);
+    pointer-events: all;
     transition: $duration $easing;
     transition-property: opacity, color, background-color;
 

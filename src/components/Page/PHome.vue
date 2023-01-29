@@ -30,7 +30,7 @@
     </div>
 
     <div>
-      <MHelpModal/>
+      <!--      <MHelpModal/>-->
 
       <OAppearList
         :current-frame="currentFrame"
@@ -60,7 +60,7 @@
       key: 'header',
       component: MHeader,
       startFrame: 0,
-      endFrame: 40,
+      endFrame: 5,
       props: {
         title: 'Hold My Sleeve!',
         subTitle: 'Beautiful and space-saving cover holder'
@@ -70,7 +70,7 @@
       key: 'scroll-hint',
       component: AScrollHint,
       startFrame: 0,
-      endFrame: 40,
+      endFrame: 5,
       props: {}
     },
     {
@@ -81,7 +81,7 @@
       props: {
         index: 0,
         title: 'Remove The Dust Cover',
-        paragraph: 'It\'s not 1960 and these things just don\'t do enough good to justify the ugliness.'
+        paragraph: 'It looks old and crappy anyway.'
       }
     },
     {
@@ -113,15 +113,15 @@
       endFrame: 255,
       props: {
         index: 3,
-        title: 'Place The Sleeve Into The Clips',
-        paragraph: 'This will fit sleeves with up to two 220g vinyls. If your sleeve is too thick, you might be able to open it like a book and reduce the size.'
+        title: 'Store the sleeve',
+        paragraph: 'This will fit sleeves with up to two 220g vinyls.'
       }
     },
     {
       key: 'step-5',
       component: MFeaturePreview,
-      startFrame: 340,
-      endFrame: 390,
+      startFrame: 300,
+      endFrame: 350,
       props: {
         index: 4,
         title: 'Lean Back & Enjoy The Music',
@@ -157,7 +157,7 @@
           {
             key: 'interactivity-button',
             component: AButton,
-            startFrame: 390,
+            startFrame: 350,
             endFrame: 999,
             class: 'PHome__interactivityButton',
             props: {
@@ -326,7 +326,7 @@
     &__interactivityButton {
       bottom: spacer(5);
       left: 50%;
-      position: fixed;
+      position: absolute;
       transform: translateX(-50%);
     }
   }

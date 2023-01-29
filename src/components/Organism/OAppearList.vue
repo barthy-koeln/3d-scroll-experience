@@ -1,17 +1,19 @@
 <template>
-  <TransitionGroup name="fade">
-    <template
-      v-for="item in filteredItems"
-      :key="item.key"
-    >
-      <Component
-        :is="item.component"
-        :class="item.class"
-        v-bind="item.props"
-        v-on="item.on || {}"
-      />
-    </template>
-  </TransitionGroup>
+  <div class="OAppearList">
+    <TransitionGroup name="fade">
+      <template
+        v-for="item in filteredItems"
+        :key="item.key"
+      >
+        <Component
+          :is="item.component"
+          :class="item.class"
+          v-bind="item.props"
+          v-on="item.on || {}"
+        />
+      </template>
+    </TransitionGroup>
+  </div>
 </template>
 
 <script lang="ts">
@@ -55,3 +57,19 @@
     }
   })
 </script>
+
+<style lang="scss">
+  .OAppearList {
+    aspect-ratio: 16 / 9;
+    height: auto;
+    left: 50%;
+    max-height: 1080px;
+    max-width: 1920px;
+    pointer-events: none;
+    position: fixed;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    user-select: none;
+    width: 100%;
+  }
+</style>

@@ -26,7 +26,7 @@
       </g>
     </svg>
 
-    <em class="a-scrollHint__text">Scroll to animate</em>
+    <em class="AScrollHint__text">Scroll to animate</em>
   </div>
 </template>
 
@@ -44,9 +44,11 @@
   .AScrollHint {
     align-items: center;
     animation: bounce 2.5s infinite;
+    bottom: 4vh;
     display: flex;
     gap: 1rem;
     justify-content: center;
+    position: absolute;
     width: 100%;
 
     @keyframes bounce {
@@ -58,23 +60,23 @@
       }
 
       25% {
-        transform: translateY(-5px);
+        transform: translateY(5px);
       }
     }
 
     @keyframes wonky {
 
       0%,
-      50%,
+      15%,
       100% {
         transform: rotate(0);
       }
 
-      12.5% {
+      5% {
         transform: rotate(-5deg);
       }
 
-      37.5% {
+      10% {
         transform: rotate(5deg);
       }
     }
