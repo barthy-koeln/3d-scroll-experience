@@ -23,15 +23,18 @@ export function useResponsiveCamera (cameraIn?: PerspectiveCamera): ResponsiveCa
       const desiredAspect = 16 / 9
       const fovFactor = desiredAspect / camera.aspect
 
-      const maxWidth = 1920
-      const maxHeight = 1080
+      const maxWidth = Math.min(1920, width)
+      const maxHeight = Math.floor(maxWidth / desiredAspect)
+      
+      const viewOffsetX = -1 * (width - maxWidth) / 2
+      const viewOffsetY = -1 * (height - maxHeight) / 2
 
       camera.fov = camera.userData.initialFov * fovFactor
       camera.setViewOffset(
         maxWidth,
         maxHeight,
-        -1 * (width - maxWidth) / 2,
-        -1 * (height - maxHeight) / 2,
+        viewOffsetX,
+        viewOffsetY,
         width,
         height
       )

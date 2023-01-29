@@ -29,14 +29,10 @@
       />
     </div>
 
-    <div>
-      <!--      <MHelpModal/>-->
-
-      <OAppearList
-        :current-frame="currentFrame"
-        :items="scrollRevealItems"
-      />
-    </div>
+    <OAppearList
+      :current-frame="currentFrame"
+      :items="scrollRevealItems"
+    />
   </div>
 </template>
 
@@ -45,7 +41,6 @@
   import AScrollHint from '@/components/Atom/AScrollHint.vue'
   import MFeaturePreview from '@/components/Molecule/MFeaturePreview.vue'
   import MHeader from '@/components/Molecule/MHeader.vue'
-  import MHelpModal from '@/components/Molecule/MHelpModal.vue'
   import type { ScrollRevealItem } from '@/components/Organism/OAppearList.vue'
   import OAppearList from '@/components/Organism/OAppearList.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
@@ -135,7 +130,6 @@
 
     components: {
       OAppearList,
-      MHelpModal,
       OInterActiveScene
     },
 
