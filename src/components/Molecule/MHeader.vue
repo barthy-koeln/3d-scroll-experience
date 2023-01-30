@@ -44,14 +44,11 @@
     &__title {
       color: var(--color-light);
       font-size: 8rem;
-      line-height: 5rem;
       -webkit-text-stroke: 2px var(--color-primary);
-      text-transform: uppercase;
     }
 
     &__subtitle {
       font-size: 3rem;
-      line-height: 2.8rem;
     }
   }
 </style>

@@ -43,55 +43,47 @@
 <style lang="scss">
   @use "@/_variables.scss" as *;
 
+  @keyframes wobble {
+    0% {
+      transform: translate(0, 0px);
+      box-shadow: 0 10px 10px 0 rgb(0 0 0 / 60%);
+    }
+    50% {
+      transform: translate(0, -5px);
+      box-shadow: 0 10px 60px 0 rgb(0 0 0 / 60%);
+    }
+    100% {
+      transform: translate(0, -0px);
+      box-shadow: 0 10px 10px 0 rgb(0 0 0 / 60%);
+    }
+  }
+
   .MFeaturePreview {
-    background-image: linear-gradient(45deg, var(--color-secondary) 0%, var(--color-primary) 100%);
     display: flex;
     flex-direction: column;
     gap: var(--spacer);
-    overflow: hidden;
     padding: 64px;
     position: absolute;
     width: 512px;
 
+    &::before {
+      animation: wobble 4s infinite;
+      animation-fill-mode: both;
+      background-image: linear-gradient(45deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+      border-radius: var(--border-radius);
+      content: "";
+      inset: 0 0 0 0;
+      overflow: hidden;
+      position: absolute;
+    }
+
     &__title {
-      font-size: 3rem;
-      line-height: 2.8rem;
-      text-transform: uppercase;
+      font-size: 2.4rem;
     }
 
     &__paragraph {
-      font-size: 1.8rem;
+      font-size: 1.4rem;
       line-height: 1.2;
-    }
-
-    &[data-section="0"] {
-      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-      left: 4%;
-      top: 4%;
-    }
-
-    &[data-section="1"] {
-      border-radius: 76% 24% 78% 22% / 30% 70% 30% 70%;
-      bottom: 70%;
-      right: 4%;
-    }
-
-    &[data-section="2"] {
-      border-radius: 22% 78% 54% 46% / 55% 55% 45% 45%;
-      bottom: 62.5%;
-      left: 20%;
-    }
-
-    &[data-section="3"] {
-      border-radius: 26% 74% 70% 30% / 74% 79% 21% 26%;
-      bottom: 25%;
-      right: 4%;
-    }
-
-    &[data-section="4"] {
-      border-radius: 24% 76% 63% 37% / 81% 55% 45% 19%;
-      bottom: 4%;
-      left: 4%;
     }
   }
 </style>

@@ -8,11 +8,28 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [
     vue(),
-    visualizer()
+    visualizer({ filename: 'dist/bundle.html' })
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'three/examples': fileURLToPath(new URL('./node_modules/three/examples', import.meta.url)),
+      'three': fileURLToPath(new URL('./node_modules/three/src/Three', import.meta.url))
+    }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks (id) {
+          if (id.includes('three/src/')) {
+            return 'three-core'
+          }
+
+          if (id.includes('node_modules')) {
+            return 'vendor'
+          }
+        }
+      }
     }
   }
 })

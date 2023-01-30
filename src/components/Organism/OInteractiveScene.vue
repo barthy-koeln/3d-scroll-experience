@@ -17,7 +17,6 @@
   import { useResizeListeners } from '@/utils/useResizeListeners'
   import { useResponsiveCamera } from '@/utils/useResponsiveCamera'
   import { useResponsiveCanvas } from '@/utils/useResponsiveCanvas'
-  import { useResponsiveEffectComposer } from '@/utils/useResponsiveEffectComposer'
   import { useResponsiveRenderer } from '@/utils/useResponsiveRenderer'
   import { useTrackedPointer } from '@/utils/useTrackedPointer'
   import { update as updateAllTweens } from '@tweenjs/tween.js'
@@ -78,12 +77,6 @@
 
       const { camera, updateCamera } = useResponsiveCamera(interactiveGltf.camera)
 
-      const {
-        composer,
-        outlinePass,
-        updateEffectComposer
-      } = useResponsiveEffectComposer(canvas, renderer, scene, camera)
-
       return {
         ...interactiveGltf,
         ...useBVHRaycaster(context),
@@ -93,14 +86,11 @@
         ...useResizeListeners([
           updateCanvas,
           updateCamera,
-          updateEffectComposer,
           updateRenderer
         ]),
 
         renderer,
         canvas,
-        composer,
-        outlinePass,
         camera,
         scene,
         clock: new Clock()
@@ -142,11 +132,12 @@
     watch: {
       hoverObject (newHoverObject) {
         if (newHoverObject) {
-          this.outlinePass.selectedObjects = [newHoverObject]
+          // hover
+
           return
         }
 
-        this.outlinePass.selectedObjects = []
+        // no hover
       }
     },
 
@@ -158,7 +149,7 @@
       render (time: number) {
         const delta = this.clock.getDelta()
         this.raycaster.setFromCamera(this.pointer, this.camera)
-        this.orbitControls.enabled && this.orbitControls.update(delta)
+        this.orbitControls?.enabled && this.orbitControls.update()
         this.updateIntersections(this.interactiveObjects, this.hoverObject)
         updateAllTweens(time)
 

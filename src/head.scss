@@ -68,6 +68,8 @@ em {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-title-family);
   font-weight: var(--font-title-weight);
+  line-height: 0.83;
+  text-transform: uppercase;
 }
 
 .fade-enter-active,

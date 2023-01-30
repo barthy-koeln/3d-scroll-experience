@@ -77,6 +77,11 @@
         index: 0,
         title: 'Remove The Dust Cover',
         paragraph: 'It looks old and crappy anyway.'
+      },
+      style: {
+        '--border-radius': '30% 70% 70% 30% / 30% 30% 70% 70%',
+        left: '4%',
+        bottom: '4%'
       }
     },
     {
@@ -88,6 +93,11 @@
         index: 1,
         title: 'Clip The Clippy Things',
         paragraph: 'They will fit right into the dust cover\'s joints.'
+      },
+      style: {
+        '--border-radius': '76% 24% 78% 22% / 30% 70% 30% 70%',
+        top: '4%',
+        left: '4%'
       }
     },
     {
@@ -98,7 +108,12 @@
       props: {
         index: 2,
         title: 'Get Your Wax Out',
-        paragraph: 'Don\'t forget to wipe.'
+        paragraph: 'Don\'t forget to wipe. And maybe wash your hands.'
+      },
+      style: {
+        '--border-radius': '22% 78% 54% 46% / 55% 55% 45% 45%',
+        right: '4%',
+        top: '8%'
       }
     },
     {
@@ -108,19 +123,29 @@
       endFrame: 255,
       props: {
         index: 3,
-        title: 'Store the sleeve',
+        title: 'Slip the sleeve into the clips',
         paragraph: 'This will fit sleeves with up to two 220g vinyls.'
+      },
+      style: {
+        '--border-radius': '26% 74% 70% 30% / 74% 79% 21% 26%',
+        bottom: '8%',
+        right: '4%'
       }
     },
     {
       key: 'step-5',
       component: MFeaturePreview,
-      startFrame: 300,
-      endFrame: 350,
+      startFrame: 320,
+      endFrame: 370,
       props: {
         index: 4,
         title: 'Lean Back & Enjoy The Music',
         paragraph: 'And take some time to appreciate that beautiful cover.'
+      },
+      style: {
+        '--border-radius': '24% 76% 63% 37% / 81% 55% 45% 19%',
+        bottom: '4%',
+        left: '4%'
       }
     }
   ]
@@ -151,7 +176,7 @@
           {
             key: 'interactivity-button',
             component: AButton,
-            startFrame: 350,
+            startFrame: 380,
             endFrame: 999,
             class: 'PHome__interactivityButton',
             props: {

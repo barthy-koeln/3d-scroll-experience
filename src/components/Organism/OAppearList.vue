@@ -8,6 +8,7 @@
         <Component
           :is="item.component"
           :class="item.class"
+          :style="item.style"
           v-bind="item.props"
           v-on="item.on || {}"
         />
@@ -25,6 +26,7 @@
     component: Component,
 
     class?: unknown,
+    style?: unknown,
     props: Record<string, unknown>,
 
     on?: Record<string, Function>,
@@ -60,16 +62,12 @@
 
 <style lang="scss">
   .OAppearList {
-    aspect-ratio: 16 / 9;
-    height: auto;
-    left: 50%;
-    max-height: 1080px;
-    max-width: 1920px;
+    height: var(--camera-view-height);
+    left: var(--camera-view-offset-x);
     pointer-events: none;
     position: fixed;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: var(--camera-view-offset-y);
     user-select: none;
-    width: 100%;
+    width: var(--camera-view-width);
   }
 </style>

@@ -59,7 +59,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
 
     const initialBox = new Box3().setFromObject(gltf.scene)
     const camera = gltf.scene.getObjectByName('camera') as PerspectiveCamera
-    const cameraTarget = gltf.scene.getObjectByName('cameraTarget') as PerspectiveCamera
+    const cameraTarget = gltf.scene.getObjectByName('cameraTarget') as Object3D
 
     gltf.scene.traverseVisible(adjustVisibleItem)
     scene.add(gltf.scene)
