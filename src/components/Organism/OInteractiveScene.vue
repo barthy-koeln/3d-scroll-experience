@@ -78,7 +78,7 @@
       const interactiveGltf = await useInteractiveGLTF(props.modelUrl, props.interactiveElementNames, scene, anisotropy)
 
       const { camera: responsiveCamera, updateCamera } = useResponsiveCamera(interactiveGltf.camera)
-      const camera = useRestorableCamera(responsiveCamera, interactiveGltf.cameraTarget, context)
+      const camera = useRestorableCamera(responsiveCamera, interactiveGltf.cameraTarget)
 
       return {
         ...interactiveGltf,
