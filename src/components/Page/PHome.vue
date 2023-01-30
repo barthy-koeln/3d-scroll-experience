@@ -1,7 +1,7 @@
 <template>
   <div
     :data-hover="hoverObject !== null || undefined"
-    :data-interactive="interactivityEnabled || undefined"
+    :data-interactive="controlsMode === 'orbit' || undefined"
     :style="pointerStyles"
     class="PHome"
   >
@@ -22,8 +22,6 @@
         class="PHome__scene"
         model-url="/models/turntable/turntable.web.gltf"
         @click="onClick"
-        @start-orbit-controls="onOrbitControlsStart"
-        @stop-orbit-controls="onOrbitControlsStop"
         @pointermove.passive="onPointerMove"
         @update:hover="onUpdateHover"
       />
@@ -37,15 +35,14 @@
 </template>
 
 <script lang="ts">
-  import AButton from '@/components/Atom/AButton.vue'
   import AScrollHint from '@/components/Atom/AScrollHint.vue'
+  import MControlsChooser from '@/components/Molecule/MControlsChooser.vue'
   import MFeaturePreview from '@/components/Molecule/MFeaturePreview.vue'
   import MHeader from '@/components/Molecule/MHeader.vue'
   import type { ScrollRevealItem } from '@/components/Organism/OAppearList.vue'
   import OAppearList from '@/components/Organism/OAppearList.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
   import { MAX_ANIMATION_FACTOR } from '@/utils/constants'
-  import { useObjectDetailView } from '@/utils/useObjectDetailView'
   import Lenis from '@studio-freight/lenis'
   import type { Object3D } from 'three'
   import { defineComponent, ref, toRaw } from 'vue'
@@ -79,7 +76,7 @@
         paragraph: 'It looks old and crappy anyway.'
       },
       style: {
-        '--border-radius': '30% 70% 70% 30% / 30% 30% 70% 70%',
+        '--border-radius': '22% 78% 54% 46% / 55% 55% 45% 45% ',
         left: '4%',
         bottom: '4%'
       }
@@ -95,7 +92,7 @@
         paragraph: 'They will fit right into the dust cover\'s joints.'
       },
       style: {
-        '--border-radius': '76% 24% 78% 22% / 30% 70% 30% 70%',
+        '--border-radius': '30% 70% 70% 30% / 30% 30% 70% 70% ',
         top: '4%',
         left: '4%'
       }
@@ -162,7 +159,7 @@
       return {
         hoverObject: null as Object3D | null,
         activeObject: null as Object3D | null,
-        interactivityEnabled: false,
+        controlsMode: 'scroll',
         currentFrame: 0,
         showHelp: false,
         pointerStyles: {}
@@ -174,17 +171,17 @@
         return [
           ...staticRevealItems,
           {
-            key: 'interactivity-button',
-            component: AButton,
+            key: 'controls-chooser',
+            component: MControlsChooser,
             startFrame: 380,
             endFrame: 999,
-            class: 'PHome__interactivityButton',
+            class: 'PHome__controlsChooser',
             props: {
-              label: this.interactivityEnabled ? 'Enable Scrolling Mode' : 'Enable Interactivity Mode'
+              mode: this.controlsMode
             },
 
             on: {
-              click: this.onToggleInteractivity
+              'update:mode': this.changeControlsMode
             }
           }
         ]
@@ -215,8 +212,7 @@
         lenis,
         duration: config.frameCount / config.framesPerSecond,
         scrollHeight: config.frameCount * config.framesPerSecond,
-        ...config,
-        ...useObjectDetailView(scene)
+        ...config
       }
     },
 
@@ -229,8 +225,10 @@
         const rawNewActive = toRaw(newActiveObject)
         const rawPreviousActive = toRaw(previousActiveObject)
 
-        this.toggleActiveObject(this.scene.interactiveObjects, rawNewActive, rawPreviousActive)
-        this.scene.setAnimationTime(1)
+        console.info({
+          rawNewActive,
+          rawPreviousActive
+        })
       }
     },
 
@@ -252,22 +250,12 @@
         this.hoverObject = object
       },
 
-      onOrbitControlsStart () {
-        this.interactivityEnabled = true
-        this.lenis.start()
-      },
-
-      onOrbitControlsStop () {
-        this.interactivityEnabled = false
-        this.lenis.start()
-      },
-
       onFrame (time: number) {
         if (!this.scene) {
           return
         }
 
-        if (this.lenis.stopped || this.interactivityEnabled) {
+        if (this.lenis.stopped) {
           return
         }
 
@@ -283,29 +271,43 @@
         this.scene.setAnimationTime(scrollFactor * this.duration)
       },
 
-      onToggleInteractivity () {
-        this.interactivityEnabled ? this.disableInteractivity() : this.enableInteractivity()
+      async changeControlsMode (newMode: string) {
+        if (this.controlsMode === newMode) {
+          return
+        }
+
+
+        switch (newMode) {
+          case 'scroll':
+            this.disableInteractivity()
+            await this.scene?.stopOrbitControls()
+            await this.scene?.stopFPSControls()
+            await this.scene?.camera.userData.restoreInitialConfig()
+            break
+          case 'orbit':
+            this.enableInteractivity()
+            await this.scene?.stopFPSControls()
+            await this.scene?.startOrbitControls()
+            break
+          case 'fps':
+            this.enableInteractivity()
+            await this.scene?.stopOrbitControls()
+            await this.scene?.startFPSControls()
+            break
+        }
+
+        this.controlsMode = newMode
       },
 
       enableInteractivity () {
-        if (!this.scene) {
-          return
-        }
-
         this.lenis.stop()
-        this.scene.startOrbitControls()
-        this.scene.startRaycasting()
-        this.scene.setAnimationTime(MAX_ANIMATION_FACTOR * this.duration)
+        // this.scene.startRaycasting()
+        this.scene?.setAnimationTime(MAX_ANIMATION_FACTOR * this.duration)
       },
 
       disableInteractivity () {
-        if (!this.scene) {
-          return
-        }
-
-        this.lenis.stop()
-        this.scene.stopOrbitControls()
-        this.scene.stopRaycasting()
+        this.lenis.start()
+        // this.scene.stopRaycasting()
       },
 
       onPointerMove (event: PointerEvent) {
@@ -342,8 +344,8 @@
       top: 0;
     }
 
-    &__interactivityButton {
-      bottom: spacer(5);
+    &__controlsChooser {
+      bottom: var(--spacer);
       left: 50%;
       position: absolute;
       transform: translateX(-50%);

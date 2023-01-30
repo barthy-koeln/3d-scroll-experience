@@ -12,12 +12,14 @@
   import { useClickWithoutDragging } from '@/utils/useClickWithoutDragging'
   import { useDefaultScene } from '@/utils/useDefaultScene'
   import { useEnvMap } from '@/utils/useEnvMap'
+  import { useFirstPersonControls } from '@/utils/useFirstPersonControls'
   import { useInteractiveGLTF } from '@/utils/useInteractiveGLTF'
   import { useOrbitControls } from '@/utils/useOrbitControls'
   import { useResizeListeners } from '@/utils/useResizeListeners'
   import { useResponsiveCamera } from '@/utils/useResponsiveCamera'
   import { useResponsiveCanvas } from '@/utils/useResponsiveCanvas'
   import { useResponsiveRenderer } from '@/utils/useResponsiveRenderer'
+  import { useRestorableCamera } from '@/utils/useRestorableCamera'
   import { useTrackedPointer } from '@/utils/useTrackedPointer'
   import { update as updateAllTweens } from '@tweenjs/tween.js'
   import { Clock, Color, Object3D } from 'three'
@@ -75,13 +77,15 @@
       const anisotropy = renderer.capabilities.getMaxAnisotropy()
       const interactiveGltf = await useInteractiveGLTF(props.modelUrl, props.interactiveElementNames, scene, anisotropy)
 
-      const { camera, updateCamera } = useResponsiveCamera(interactiveGltf.camera)
+      const { camera: responsiveCamera, updateCamera } = useResponsiveCamera(interactiveGltf.camera)
+      const camera = useRestorableCamera(responsiveCamera, interactiveGltf.cameraTarget, context)
 
       return {
         ...interactiveGltf,
         ...useBVHRaycaster(context),
         ...useTrackedPointer(),
-        ...useOrbitControls(camera, interactiveGltf.cameraTarget, canvas, context),
+        ...useOrbitControls(camera, interactiveGltf.cameraTarget, canvas),
+        ...useFirstPersonControls(camera, interactiveGltf.cameraTarget, canvas),
         ...useClickWithoutDragging(context),
         ...useResizeListeners([
           updateCanvas,
@@ -98,7 +102,6 @@
     },
 
     async mounted () {
-      this.frameObject(this.initialBox)
       this.start()
     },
 
@@ -109,11 +112,12 @@
     expose: [
       'start',
       'stop',
+      'camera',
       'startOrbitControls',
       'stopOrbitControls',
+      'startFPSControls',
+      'stopFPSControls',
       'interactiveObjects',
-      'frameObject',
-      'resetFrame',
       'setAnimationTime',
       'startAnimations',
       'stopAnimations',
@@ -124,9 +128,7 @@
     emits: [
       'update:hover',
       'click',
-      'frame',
-      'start-orbit-controls',
-      'stop-orbit-controls'
+      'frame'
     ],
 
     watch: {
@@ -149,7 +151,10 @@
       render (time: number) {
         const delta = this.clock.getDelta()
         this.raycaster.setFromCamera(this.pointer, this.camera)
+
         this.orbitControls?.enabled && this.orbitControls.update()
+        this.firstPersonControls?.enabled && this.firstPersonControls.update(delta)
+
         this.updateIntersections(this.interactiveObjects, this.hoverObject)
         updateAllTweens(time)
 
@@ -158,10 +163,6 @@
         this.renderer.render(this.scene, this.camera)
 
         this.animationFrameId = window.requestAnimationFrame(this.render)
-      },
-
-      resetFrame () {
-        this.frameObject(this.initialBox)
       },
 
       start () {

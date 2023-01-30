@@ -5,6 +5,7 @@ import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 export interface InteractiveGltf {
   camera: PerspectiveCamera,
   cameraTarget: Object3D,
+  navMesh: Object3D,
   clipsMixer: AnimationMixer,
   initialBox: Box3,
   interactiveObjects: Object3D[],
@@ -25,9 +26,9 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     if (child instanceof Light) {
       child.intensity *= .01
       child.castShadow = true
-      child.shadow.mapSize.width = 512
-      child.shadow.mapSize.height = 512
-      child.shadow.bias = -0.0001
+      child.shadow.mapSize.width = 1024
+      child.shadow.mapSize.height = 1024
+      child.shadow.bias = -0.005
       return
     }
 
@@ -60,6 +61,9 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     const initialBox = new Box3().setFromObject(gltf.scene)
     const camera = gltf.scene.getObjectByName('camera') as PerspectiveCamera
     const cameraTarget = gltf.scene.getObjectByName('cameraTarget') as Object3D
+    const navMesh = gltf.scene.getObjectByName('navMesh') as Object3D
+
+    navMesh.visible = false
 
     gltf.scene.traverseVisible(adjustVisibleItem)
     scene.add(gltf.scene)
@@ -74,6 +78,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     resolve({
       camera,
       cameraTarget,
+      navMesh,
       clipsMixer,
       initialBox,
       interactiveObjects,

@@ -2062,6 +2062,11 @@ three-mesh-bvh@^0.5.22:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.22.tgz#9c20fbaba1f55c7afe3fe769a90c4605e3bd53ee"
   integrity sha512-vi9X78CoEz1VVfkKRpUZQa34SEc0QGDd9Hmyis0aeBRAmjp4BpHQ2URcirBsOvFMNBXqB9Klp8sQ9NCRsUEW0w==
 
+three-pathfinding@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/three-pathfinding/-/three-pathfinding-1.1.0.tgz#23c0abc63b1139f74b6bca0e87596e6bea628a5f"
+  integrity sha512-GkQ5/HAVZZ/BT1kLvqf0KOmyDYrBtGk6krv0YX/0qU2sCv6a9epJZXNgczzZDQzX8+s676Uc4SKTo5djKpF3TA==
+
 three@^0.148.0:
   version "0.148.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.148.0.tgz#b6f62f9c84227f8d51c151bf17b67984ded8e4d7"

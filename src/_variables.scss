@@ -9,16 +9,5 @@ $spacers: (
   5: 2 * $spacer
 );
 
-$color-primary: #8c1c13;
-$color-primary-light: #bf4342;
-$color-light: #e7d7c1;
-$color-medium: #a78a7f;
-$color-dark: #735751;
-
-
 $duration: .3s;
 $easing: ease;
-
-@function spacer($level: 3) {
-  @return var(--spacer-#{$level});
-}

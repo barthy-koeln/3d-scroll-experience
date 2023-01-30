@@ -19,6 +19,7 @@
     "draco3d": "^1.5.5",
     "three": "^0.148.0",
     "three-mesh-bvh": "^0.5.22",
+    "three-pathfinding": "^1.1.0",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
