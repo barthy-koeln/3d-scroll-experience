@@ -97,6 +97,7 @@
         canvas,
         camera,
         scene,
+        getObjectByName: scene.getObjectByName.bind(scene),
         clock: new Clock()
       }
     },
@@ -108,22 +109,6 @@
     beforeUnmount () {
       this.stop()
     },
-
-    expose: [
-      'start',
-      'stop',
-      'camera',
-      'startOrbitControls',
-      'stopOrbitControls',
-      'startFPSControls',
-      'stopFPSControls',
-      'interactiveObjects',
-      'setAnimationTime',
-      'startAnimations',
-      'stopAnimations',
-      'startRaycasting',
-      'stopRaycasting'
-    ],
 
     emits: [
       'update:hover',

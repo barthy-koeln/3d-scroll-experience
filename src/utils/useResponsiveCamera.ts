@@ -6,6 +6,20 @@ type ResponsiveCamera = {
   updateCamera: ResizeListenerCallback
 }
 
+type Rectangle = {
+  width: number,
+  height: number
+}
+
+function getMaxSize (source: Rectangle, destination: Rectangle): Rectangle {
+  const scale = Math.min(destination.width / source.width, destination.height / source.height)
+
+  return {
+    width: source.width * scale,
+    height: source.height * scale
+  }
+}
+
 export function useResponsiveCamera (cameraIn?: PerspectiveCamera): ResponsiveCamera {
   const camera = cameraIn || new PerspectiveCamera()
 
@@ -23,8 +37,19 @@ export function useResponsiveCamera (cameraIn?: PerspectiveCamera): ResponsiveCa
       const desiredAspect = 16 / 9
       const fovFactor = desiredAspect / camera.aspect
 
-      const maxWidth = Math.min(1920, width)
-      const maxHeight = Math.floor(maxWidth / desiredAspect)
+      const {
+        width: maxWidth,
+        height: maxHeight
+      } = getMaxSize(
+        {
+          width,
+          height
+        },
+        {
+          width: 1920,
+          height: 1080
+        }
+      )
 
       const viewOffsetX = (width - maxWidth) / 2
       const viewOffsetY = (height - maxHeight) / 2

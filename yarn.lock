@@ -187,11 +187,12 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.2.0.tgz#8be36a1f66f3265389e90b5f9c9962146758f728"
   integrity sha512-sXo/qW2/pAcmT43VoRKOJbDOfV3cYpq3szSVfIThQXNt+E4DfKj361vaAt3c88U5tPUxzEswam7GW48PJqtKAg==
 
-"@studio-freight/lenis@^0.2.28":
-  version "0.2.28"
-  resolved "https://registry.yarnpkg.com/@studio-freight/lenis/-/lenis-0.2.28.tgz#b6a69dcd6abfbc79517a76f3e86841533811f1b4"
-  integrity sha512-obxWf3ZNtnLg9Rd2WPgkzq36N2NEmiwvdlNXlHIrrjCGltZp4+NtIQmXsF9/XtsJEhQ4Gd4u90zALRDgsr5W/g==
+"@studio-freight/lenis@studio-freight/lenis#main":
+  version "1.0.0-dev.5"
+  resolved "https://codeload.github.com/studio-freight/lenis/tar.gz/41d3262ea806aec59489c056127dd2b9c7a41202"
   dependencies:
+    nanoevents "^7.0.1"
+    npm-run-all "^4.1.5"
     tiny-emitter "^2.1.0"
     virtual-scroll "^2.2.1"
 
@@ -215,10 +216,10 @@
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.13.tgz#da4bfd73f49bd541d28920ab0e2bf0ee80f71c91"
   integrity sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==
 
-"@types/three@^0.148.1":
-  version "0.148.1"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.148.1.tgz#e999a1a4840c12da8723187c315d8c8781d1066b"
-  integrity sha512-gZwIyTBMxKXqJHXmZ0dzvDieuQ4hz8MPNHtkRrAwER/xPlAh9eP2WIfaolvQY+wJAzlNV5a9ceS4JT+i/jybsw==
+"@types/three@^0.149.0":
+  version "0.149.0"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.149.0.tgz#f48c03ffcf35b2d196f3532b51bc845e96f6090e"
+  integrity sha512-fgNBm9LWc65ER/W0cvoXdC0iMy7Ke9e2CONmEr6Jt8sDSY3sw4DgOubZfmdZ747dkPhbQrgRQAWwDEr2S/7IEg==
   dependencies:
     "@types/webxr" "*"
 
@@ -579,11 +580,6 @@ callsites@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/callsites/-/callsites-3.1.0.tgz#b3630abd8943432f54b3f0519238e33cd7df2f73"
   integrity sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
-
-camera-controls@^1.38.0:
-  version "1.38.0"
-  resolved "https://registry.yarnpkg.com/camera-controls/-/camera-controls-1.38.0.tgz#1fe3a90cb13009acf253e066343fd4fb49ea3b2b"
-  integrity sha512-gOLZdfP0NvDKlm6qHqjH13rzrtnL2Vs/Q4BU2tnoGlxg9zqtsQKIkZjIixO8IaSfy6v84NROje5LO+BWEFTcrw==
 
 chalk@^2.4.1:
   version "2.4.2"
@@ -1553,6 +1549,11 @@ muggle-string@^0.1.0:
   resolved "https://registry.yarnpkg.com/muggle-string/-/muggle-string-0.1.0.tgz#1fda8a281c8b27bb8b70466dbc9f27586a8baa6c"
   integrity sha512-Tr1knR3d2mKvvWthlk7202rywKbiOm4rVFLsfAaSIhJ6dt9o47W4S+JMtWhd/PW9Wrdew2/S2fSvhz3E2gkfEg==
 
+nanoevents@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/nanoevents/-/nanoevents-7.0.1.tgz#181580b47787688d8cac775b977b1cf24e26e570"
+  integrity sha512-o6lpKiCxLeijK4hgsqfR6CNToPyRU3keKyyI6uwuHRvpRTbZ0wXw51WRgyldVugZqoJfkGFrjrIenYH3bfEO3Q==
+
 nanoid@^3.3.4:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
@@ -2067,10 +2068,10 @@ three-pathfinding@^1.1.0:
   resolved "https://registry.yarnpkg.com/three-pathfinding/-/three-pathfinding-1.1.0.tgz#23c0abc63b1139f74b6bca0e87596e6bea628a5f"
   integrity sha512-GkQ5/HAVZZ/BT1kLvqf0KOmyDYrBtGk6krv0YX/0qU2sCv6a9epJZXNgczzZDQzX8+s676Uc4SKTo5djKpF3TA==
 
-three@^0.148.0:
-  version "0.148.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.148.0.tgz#b6f62f9c84227f8d51c151bf17b67984ded8e4d7"
-  integrity sha512-8uzVV+qhTPi0bOFs/3te3RW6hb3urL8jYEl6irjCWo/l6sr8MPNMcClFev/MMYeIxr0gmDcoXTy/8LXh/LXkfw==
+three@^0.149.0:
+  version "0.149.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.149.0.tgz#a9cf78b17d02f063ffe6dfca1e300eff2eab2927"
+  integrity sha512-tohpUxPDht0qExRLDTM8sjRLc5d9STURNrdnK3w9A+V4pxaTBfKWWT/IqtiLfg23Vfc3Z+ImNfvRw1/0CtxrkQ==
 
 tiny-emitter@^2.1.0:
   version "2.1.0"

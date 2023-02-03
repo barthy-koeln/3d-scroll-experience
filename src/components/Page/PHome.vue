@@ -2,10 +2,10 @@
   <div
     :data-hover="hoverObject !== null || undefined"
     :data-interactive="controlsMode === 'orbit' || undefined"
-    :style="pointerStyles"
     class="PHome"
   >
     <div
+      ref="wrapper"
       :style="{'--scrollHeight': `${scrollHeight}px`}"
       class="PHome__scrollWrapper"
     >
@@ -14,15 +14,10 @@
         :active-object="activeObject"
         :frame-callback="onFrame"
         :hover-object="hoverObject"
-        :interactive-element-names="[
-                  'top_floor',
-                  'bottom_floor',
-                  'roof'
-                ]"
+        :interactive-element-names="[]"
         class="PHome__scene"
         model-url="/models/turntable/turntable.web.gltf"
         @click="onClick"
-        @pointermove.passive="onPointerMove"
         @update:hover="onUpdateHover"
       />
     </div>
@@ -43,9 +38,11 @@
   import OAppearList from '@/components/Organism/OAppearList.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
   import { MAX_ANIMATION_FACTOR } from '@/utils/constants'
+  import type { RotationAnimation } from '@/utils/useRotationAnimation'
+  import { useRotationAnimation } from '@/utils/useRotationAnimation'
   import Lenis from '@studio-freight/lenis'
   import type { Object3D } from 'three'
-  import { defineComponent, ref, toRaw } from 'vue'
+  import { defineComponent, toRaw } from 'vue'
 
   const staticRevealItems = [
     {
@@ -155,18 +152,47 @@
       OInterActiveScene
     },
 
+    setup () {
+      const lenis = new Lenis({
+        duration: 1.2,
+        orientation: 'vertical', // vertical, horizontal
+        gestureOrientation: 'vertical', // vertical, horizontal, both
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        smoothTouch: false,
+        touchMultiplier: 2,
+        infinite: false
+      })
+
+      const config = {
+        frameCount: 390,
+        framesPerSecond: 30
+      }
+
+      return {
+        lenis,
+        vinylAnimation: {} as RotationAnimation,
+        duration: config.frameCount / config.framesPerSecond,
+        scrollHeight: config.frameCount * config.framesPerSecond,
+        ...config
+      }
+    },
+
     data () {
       return {
         hoverObject: null as Object3D | null,
         activeObject: null as Object3D | null,
         controlsMode: 'scroll',
         currentFrame: 0,
-        showHelp: false,
-        pointerStyles: {}
+        showHelp: false
       }
     },
 
     computed: {
+      scene () {
+        return this.$refs.scene as InstanceType<typeof OInterActiveScene>
+      },
+
       scrollRevealItems (): ScrollRevealItem[] {
         return [
           ...staticRevealItems,
@@ -188,40 +214,8 @@
       }
     },
 
-    setup () {
-      const scene = ref<InstanceType<typeof OInterActiveScene> | null>(null)
-
-      const lenis = new Lenis({
-        duration: 1.2,
-        direction: 'vertical', // vertical, horizontal
-        gestureDirection: 'vertical', // vertical, horizontal, both
-        smooth: true,
-        mouseMultiplier: 1,
-        smoothTouch: false,
-        touchMultiplier: 2,
-        infinite: false
-      })
-
-      const config = {
-        frameCount: 390,
-        framesPerSecond: 30
-      }
-
-      return {
-        scene,
-        lenis,
-        duration: config.frameCount / config.framesPerSecond,
-        scrollHeight: config.frameCount * config.framesPerSecond,
-        ...config
-      }
-    },
-
     watch: {
       activeObject (newActiveObject, previousActiveObject) {
-        if (!this.scene) {
-          return
-        }
-
         const rawNewActive = toRaw(newActiveObject)
         const rawPreviousActive = toRaw(previousActiveObject)
 
@@ -230,6 +224,15 @@
           rawPreviousActive
         })
       }
+    },
+
+    mounted () {
+      this.lenis.on('scroll', this.onScroll)
+      this.vinylAnimation = useRotationAnimation(33, this.scene.getObjectByName('Vinyl') as Object3D, 'y')
+    },
+
+    beforeUnmount () {
+      this.lenis.destroy()
     },
 
     methods: {
@@ -250,18 +253,8 @@
         this.hoverObject = object
       },
 
-      onFrame (time: number) {
-        if (!this.scene) {
-          return
-        }
-
-        if (this.lenis.stopped) {
-          return
-        }
-
-        this.lenis.raf(time)
-        const maxScrollDistance = this.scrollHeight - window.innerHeight // TODO make responsive
-        const scrollFactor = Math.min(MAX_ANIMATION_FACTOR, window.scrollY / maxScrollDistance)
+      onScroll () {
+        const scrollFactor = Math.min(MAX_ANIMATION_FACTOR, this.lenis.progress)
 
         const currentFrame = Math.round(scrollFactor * this.frameCount)
         if (currentFrame !== this.currentFrame) {
@@ -271,28 +264,35 @@
         this.scene.setAnimationTime(scrollFactor * this.duration)
       },
 
+      onFrame (time: number, delta: number) {
+        if (this.currentFrame > 300) {
+          this.vinylAnimation.raf(delta)
+        }
+
+        !this.lenis.isStopped && this.lenis.raf(time)
+      },
+
       async changeControlsMode (newMode: string) {
         if (this.controlsMode === newMode) {
           return
         }
 
-
         switch (newMode) {
           case 'scroll':
             this.disableInteractivity()
-            await this.scene?.stopOrbitControls()
-            await this.scene?.stopFPSControls()
-            await this.scene?.camera.userData.restoreInitialConfig()
+            await this.scene.stopOrbitControls()
+            await this.scene.stopFPSControls()
+            await this.scene.camera.userData.restoreInitialConfig()
             break
           case 'orbit':
             this.enableInteractivity()
-            await this.scene?.stopFPSControls()
-            await this.scene?.startOrbitControls()
+            await this.scene.stopFPSControls()
+            await this.scene.startOrbitControls()
             break
           case 'fps':
             this.enableInteractivity()
-            await this.scene?.stopOrbitControls()
-            await this.scene?.startFPSControls()
+            await this.scene.stopOrbitControls()
+            await this.scene.startFPSControls()
             break
         }
 
@@ -302,19 +302,12 @@
       enableInteractivity () {
         this.lenis.stop()
         // this.scene.startRaycasting()
-        this.scene?.setAnimationTime(MAX_ANIMATION_FACTOR * this.duration)
+        this.scene.setAnimationTime(MAX_ANIMATION_FACTOR * this.duration)
       },
 
       disableInteractivity () {
         this.lenis.start()
         // this.scene.stopRaycasting()
-      },
-
-      onPointerMove (event: PointerEvent) {
-        this.pointerStyles = {
-          '--pointer-x': event.clientX + 5 + 'px',
-          '--pointer-y': event.clientY + 5 + 'px'
-        }
       }
     }
   })

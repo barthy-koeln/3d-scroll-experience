@@ -36,7 +36,7 @@
       :active="mode === 'fps'"
       @click="update('fps')"
     >
-      <span>FPS</span>
+      <span>FPV + WASD / Arrows</span>
 
       <svg
         fill="currentColor"
