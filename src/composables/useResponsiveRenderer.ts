@@ -1,9 +1,9 @@
-import type { ResizeListenerCallback } from '@/utils/useResizeListeners'
+import type { ResizeListenerCallback } from '@/composables/useResizeListeners'
 import { PCFSoftShadowMap, sRGBEncoding, WebGLRenderer } from 'three'
 
 type ResponsiveRenderer = {
   renderer: WebGLRenderer,
-  updateRenderer: ResizeListenerCallback
+  updateRendererDimensions: ResizeListenerCallback
 }
 
 export function useResponsiveRenderer (canvas: HTMLCanvasElement): ResponsiveRenderer {
@@ -22,7 +22,7 @@ export function useResponsiveRenderer (canvas: HTMLCanvasElement): ResponsiveRen
 
   return {
     renderer,
-    updateRenderer (width: number, height: number) {
+    updateRendererDimensions (width: number, height: number) {
       renderer.setSize(width, height, false)
     }
   }

@@ -1,6 +1,7 @@
-import { useCompressedGLTFLoader } from '@/utils/useCompressedGLTFLoader'
+import { CompressedGLTFLoaderService } from '@/services/CompressedGLTFLoaderService'
 import { AnimationMixer, Box3, Light, Mesh, Object3D, PerspectiveCamera, Scene } from 'three'
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
+import type { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { inject } from 'vue'
 
 export interface InteractiveGltf {
   camera: PerspectiveCamera,
@@ -15,7 +16,7 @@ export interface InteractiveGltf {
 }
 
 export async function useInteractiveGLTF (url: string, interactiveElementNames: string[], scene: Scene, anisotropy: number): Promise<InteractiveGltf> {
-  const gltfLoader = useCompressedGLTFLoader()
+  const gltfLoader = inject<GLTFLoader>(CompressedGLTFLoaderService)
   const adjustableMaps = ['map', 'normalMap', 'roughnessMap', 'metalnessMap']
 
   function prepareObjectForInteractivity (object: Object3D) {
@@ -99,7 +100,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
   const interactiveObjects = [] as Object3D[]
 
   return new Promise<InteractiveGltf>(function (resolve, reject) {
-    gltfLoader.load(
+    gltfLoader?.load(
       url,
       onLoad(resolve, interactiveElementNames, interactiveObjects),
       undefined,

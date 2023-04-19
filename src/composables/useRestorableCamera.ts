@@ -1,4 +1,4 @@
-import { DURATION } from '@/utils/constants'
+import { DURATION } from '@/constants'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import type { Object3D } from 'three'
 import { PerspectiveCamera } from 'three'

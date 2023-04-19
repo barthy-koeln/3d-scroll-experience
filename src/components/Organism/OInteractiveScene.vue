@@ -8,19 +8,20 @@
 </template>
 
 <script lang="ts">
-  import { useBVHRaycaster } from '@/utils/useBVHRaycaster'
-  import { useClickWithoutDragging } from '@/utils/useClickWithoutDragging'
-  import { useDefaultScene } from '@/utils/useDefaultScene'
-  import { useEnvMap } from '@/utils/useEnvMap'
-  import { useFirstPersonControls } from '@/utils/useFirstPersonControls'
-  import { useInteractiveGLTF } from '@/utils/useInteractiveGLTF'
-  import { useOrbitControls } from '@/utils/useOrbitControls'
-  import { useResizeListeners } from '@/utils/useResizeListeners'
-  import { useResponsiveCamera } from '@/utils/useResponsiveCamera'
-  import { useResponsiveCanvas } from '@/utils/useResponsiveCanvas'
-  import { useResponsiveRenderer } from '@/utils/useResponsiveRenderer'
-  import { useRestorableCamera } from '@/utils/useRestorableCamera'
-  import { useTrackedPointer } from '@/utils/useTrackedPointer'
+  import { useBVHRaycaster } from '@/composables/useBVHRaycaster'
+  import { useClickWithoutDragging } from '@/composables/useClickWithoutDragging'
+  import { useDebuggableMaterials } from '@/composables/useDebuggableMaterials'
+  import { useDefaultScene } from '@/composables/useDefaultScene'
+  import { useEnvMap } from '@/composables/useEnvMap'
+  import { useFirstPersonControls } from '@/composables/useFirstPersonControls'
+  import { useInteractiveGLTF } from '@/composables/useInteractiveGLTF'
+  import { useOrbitControls } from '@/composables/useOrbitControls'
+  import { useResizeListeners } from '@/composables/useResizeListeners'
+  import { useResponsiveCamera } from '@/composables/useResponsiveCamera'
+  import { useResponsiveCanvas } from '@/composables/useResponsiveCanvas'
+  import { useResponsiveRenderer } from '@/composables/useResponsiveRenderer'
+  import { useRestorableCamera } from '@/composables/useRestorableCamera'
+  import { useTrackedPointer } from '@/composables/useTrackedPointer'
   import { update as updateAllTweens } from '@tweenjs/tween.js'
   import { Clock, Color, Object3D } from 'three'
   import type { PropType, SetupContext } from 'vue'
@@ -69,15 +70,17 @@
     },
 
     async setup (props, context: SetupContext) {
-      const { canvas, updateCanvas } = useResponsiveCanvas()
-      const { renderer, updateRenderer } = useResponsiveRenderer(canvas)
+      const { canvas, updateCanvasDimensions } = useResponsiveCanvas()
+      const { renderer, updateRendererDimensions } = useResponsiveRenderer(canvas)
 
-      const envMap = await useEnvMap(renderer)
+      const envMap = await useEnvMap(renderer, '/envmap/brown_photostudio_02_1k.hdr')
       const scene = useDefaultScene(envMap)
+      useDebuggableMaterials(scene)
+
       const anisotropy = renderer.capabilities.getMaxAnisotropy()
       const interactiveGltf = await useInteractiveGLTF(props.modelUrl, props.interactiveElementNames, scene, anisotropy)
 
-      const { camera: responsiveCamera, updateCamera } = useResponsiveCamera(interactiveGltf.camera)
+      const { camera: responsiveCamera, updateCameraDimensions } = useResponsiveCamera(interactiveGltf.camera)
       const camera = useRestorableCamera(responsiveCamera, interactiveGltf.cameraTarget)
 
       return {
@@ -88,9 +91,9 @@
         ...useFirstPersonControls(camera, interactiveGltf.cameraTarget, canvas),
         ...useClickWithoutDragging(context),
         ...useResizeListeners([
-          updateCanvas,
-          updateCamera,
-          updateRenderer
+          updateCanvasDimensions,
+          updateCameraDimensions,
+          updateRendererDimensions
         ]),
 
         renderer,

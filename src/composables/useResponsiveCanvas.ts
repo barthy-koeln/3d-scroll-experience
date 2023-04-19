@@ -1,8 +1,8 @@
-import type { ResizeListenerCallback } from '@/utils/useResizeListeners'
+import type { ResizeListenerCallback } from '@/composables/useResizeListeners'
 
 type ResponsiveCanvas = {
   canvas: HTMLCanvasElement,
-  updateCanvas: ResizeListenerCallback
+  updateCanvasDimensions: ResizeListenerCallback
 }
 
 export function useResponsiveCanvas (): ResponsiveCanvas {
@@ -13,7 +13,7 @@ export function useResponsiveCanvas (): ResponsiveCanvas {
 
   return {
     canvas,
-    updateCanvas (width: number, height: number) {
+    updateCanvasDimensions (width: number, height: number) {
       canvas.width = width
       canvas.height = height
     }

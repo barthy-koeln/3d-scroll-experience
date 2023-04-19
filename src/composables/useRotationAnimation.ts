@@ -1,4 +1,4 @@
-import { DURATION } from '@/utils/constants'
+import { DURATION } from '@/constants'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import type { Euler, Object3D } from 'three'
 
@@ -18,7 +18,7 @@ export function useRotationAnimation (RPM: number, target: Object3D, axis: 'x' |
     },
     reset () {
       return new Promise(resolve => {
-        new Tween(target.rotation)
+        new Tween<Euler>(target.rotation)
           .duration(DURATION)
           .easing(Easing.Exponential.Out)
           .to({

@@ -1,46 +1,31 @@
-import '@/utils/mesh-bvh'
+import '@/mesh-bvh'
+import { getClosestParentFromSet } from '@/utils/getClosestParentFromSet'
 import { Object3D, Raycaster } from 'three'
 import type { SetupContext } from 'vue'
-
-function getClosestInteractiveParent (intersectionTargets: Object3D[], object: Object3D | null): Object3D | null {
-  while (object) {
-    if (intersectionTargets.includes(object)) {
-      return object
-    }
-
-    if (object.parent) {
-      object = object.parent
-      continue
-    }
-
-    object = null
-  }
-
-  return object
-}
+import { ref } from 'vue'
 
 export function useBVHRaycaster (context: SetupContext) {
   const raycaster = new Raycaster()
-  raycaster.firstHitOnly = true
+  const enabled = ref(false)
 
-  let enabled = false
+  raycaster.firstHitOnly = true
 
   return {
     raycaster,
 
     startRaycasting () {
-      enabled = true
+      enabled.value = true
     },
 
     stopRaycasting () {
-      enabled = false
+      enabled.value = false
     },
 
     /**
      * ! do not use reactivity here
      */
     updateIntersections (intersectionTargets: Object3D[], hoverObject: Object3D | null) {
-      if (!enabled) {
+      if (!enabled.value) {
         return
       }
 
@@ -55,7 +40,7 @@ export function useBVHRaycaster (context: SetupContext) {
       }
 
       const firstIntersection = intersects[0]
-      const interactiveParent = getClosestInteractiveParent(intersectionTargets, firstIntersection.object)
+      const interactiveParent = getClosestParentFromSet(intersectionTargets, firstIntersection.object)
 
       if (interactiveParent?.uuid !== hoverObject?.uuid) {
         context.emit('update:hover', interactiveParent)

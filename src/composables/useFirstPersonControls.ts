@@ -1,4 +1,4 @@
-import { KeyboardControls } from '@/utils/KeyboardControls'
+import { KeyboardControls } from '@/composables/KeyboardControls'
 import type { Object3D, PerspectiveCamera } from 'three'
 import { Vector3 } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
