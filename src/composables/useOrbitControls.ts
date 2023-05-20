@@ -1,9 +1,11 @@
-import type { Object3D, PerspectiveCamera } from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { ref } from 'vue'
+import type {Object3D, PerspectiveCamera} from 'three'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import {inject, ref} from 'vue'
+import {CameraOperator, CameraOperatorService} from "@/services/CameraOperator";
 
 export function useOrbitControls (camera: PerspectiveCamera, cameraTarget: Object3D, canvas: HTMLCanvasElement) {
   const orbitControls = ref<null | OrbitControls>(null)
+  const cameraOperator = inject<CameraOperator>(CameraOperatorService)
 
   return {
     orbitControls,
@@ -24,7 +26,7 @@ export function useOrbitControls (camera: PerspectiveCamera, cameraTarget: Objec
         return
       }
 
-      await camera.userData.lookAtTarget()
+      await cameraOperator?.lookAtTarget()
       orbitControls.value.enabled = true
     },
 

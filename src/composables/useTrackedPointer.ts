@@ -1,7 +1,8 @@
-import { Vector2 } from 'three'
+import {Vector2} from 'three'
+import {onBeforeUnmount, onMounted} from "vue";
 
 
-export function useTrackedPointer () {
+export function useTrackedPointer (): Vector2 {
   const pointer = new Vector2()
 
   function onPointerMove (event: MouseEvent) {
@@ -9,17 +10,13 @@ export function useTrackedPointer () {
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
   }
 
-  function startTrackingPointer () {
+  onMounted(() => {
     window.addEventListener('pointermove', onPointerMove)
-  }
+  })
 
-  function stopTrackingPointer () {
+  onBeforeUnmount(() => {
     window.addEventListener('pointermove', onPointerMove)
-  }
+  })
 
-  return {
-    pointer,
-    startTrackingPointer,
-    stopTrackingPointer
-  }
+  return pointer
 }

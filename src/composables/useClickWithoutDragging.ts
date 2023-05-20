@@ -1,7 +1,6 @@
-import type { SetupContext } from 'vue'
-import { ref } from 'vue'
+import {ref} from 'vue'
 
-export function useClickWithoutDragging (context: SetupContext, maximumClickDistance = 5) {
+export function useClickWithoutDragging (onClick: (event: MouseEvent) => void, maximumClickDistance = 5) {
   const lastPointerDownX = ref<number | null>(null)
   const lastPointerDownY = ref<number | null>(null)
 
@@ -20,7 +19,7 @@ export function useClickWithoutDragging (context: SetupContext, maximumClickDist
       const distanceY = Math.abs(event.clientY - lastPointerDownY.value)
 
       if (distanceX <= maximumClickDistance && distanceY <= maximumClickDistance) {
-        context.emit('click', event)
+        onClick(event)
       }
     }
   }

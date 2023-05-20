@@ -6,44 +6,29 @@
   </div>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from 'vue'
-
-  export default defineComponent({
-    name: 'MHoverDescription',
-
-    props: {
-      title: {
-        type: String,
-        required: true
-      },
-
-      description: {
-        type: String,
-        required: true
-      }
-    }
-  })
+<script lang="ts" setup>
+  defineProps<{
+    title: string,
+    description: string
+  }>()
 </script>
 
 <style lang="scss">
-  @use "@/variables" as *;
-
   .MHoverDescription {
     background-color: #dedede;
     border-radius: 4px;
     box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    gap: spacer(3);
+    gap: var(--spacer);
     left: 0;
     max-width: 256px;
-    padding: spacer(3);
+    padding: var(--spacer);
     pointer-events: none;
     position: fixed;
     top: 0;
     transform: translate3d(var(--pointer-x), var(--pointer-y), 1px);
-    transition: $duration $easing;
+    transition: var(--animation-duration) var(--animation-easing);
     transition-property: opacity, transform;
     user-select: none;
     will-change: transform;

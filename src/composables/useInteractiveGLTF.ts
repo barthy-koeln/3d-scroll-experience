@@ -1,22 +1,20 @@
-import { CompressedGLTFLoaderService } from '@/services/CompressedGLTFLoaderService'
-import { AnimationMixer, Box3, Light, Mesh, Object3D, PerspectiveCamera, Scene } from 'three'
-import type { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { inject } from 'vue'
+import {CompressedGLTFLoader, CompressedGLTFLoaderService} from '@/services/CompressedGLTFLoader'
+import {AnimationMixer, Box3, Light, Mesh, Object3D, PerspectiveCamera, Scene} from 'three'
+import type {GLTF} from 'three/examples/jsm/loaders/GLTFLoader'
+import {inject} from 'vue'
+import {AnimationDirector, AnimationDirectorService} from "@/services/AnimationDirector";
 
 export interface InteractiveGltf {
   camera: PerspectiveCamera,
   cameraTarget: Object3D,
   navMesh: Object3D,
-  clipsMixer: AnimationMixer,
   initialBox: Box3,
-  interactiveObjects: Object3D[],
-  setAnimationTime: (timeInSeconds: number) => AnimationMixer
-  startAnimations: () => void
-  stopAnimations: () => void
+  interactiveObjects: Object3D[]
 }
 
 export async function useInteractiveGLTF (url: string, interactiveElementNames: string[], scene: Scene, anisotropy: number): Promise<InteractiveGltf> {
-  const gltfLoader = inject<GLTFLoader>(CompressedGLTFLoaderService)
+  const gltfLoader = inject<CompressedGLTFLoader>(CompressedGLTFLoaderService)
+  const animationDirector = inject<AnimationDirector>(AnimationDirectorService)
   const adjustableMaps = ['map', 'normalMap', 'roughnessMap', 'metalnessMap']
 
   function prepareObjectForInteractivity (object: Object3D) {
@@ -69,31 +67,15 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     gltf.scene.traverseVisible(adjustVisibleItem)
     scene.add(gltf.scene)
 
-    const clipsMixer = new AnimationMixer(gltf.scene)
-    const actions = gltf.animations.map(clip => clipsMixer.clipAction(clip))
-
-    for (const action of actions) {
-      action.play()
-    }
+    animationDirector?.setMixer(new AnimationMixer(gltf.scene))
+    animationDirector?.addClips(gltf.animations)
 
     resolve({
       camera,
       cameraTarget,
       navMesh,
-      clipsMixer,
       initialBox,
       interactiveObjects,
-      setAnimationTime: clipsMixer.setTime.bind(clipsMixer),
-      startAnimations: () => {
-        for (const action of actions) {
-          action.play()
-        }
-      },
-      stopAnimations: () => {
-        for (const action of actions) {
-          action.stop()
-        }
-      }
     })
   }
 

@@ -31,12 +31,10 @@
   setup
 >
   import ALoadingIndicator from '@/components/Atom/ALoadingIndicator.vue'
-  import { RouterView } from 'vue-router'
+  import {RouterView} from 'vue-router'
 </script>
 
 <style lang="scss">
-  @use "variables" as *;
-
   .App {
 
     &__loading {

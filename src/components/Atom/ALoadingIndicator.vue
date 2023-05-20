@@ -9,17 +9,11 @@
   </div>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from 'vue'
-
-  export default defineComponent({
-    name: 'ALoadingIndicator'
-  })
+<script lang="ts" setup>
 </script>
 
 <style lang="scss">
   @use "sass:math";
-  @use "@/_variables.scss" as *;
 
   .ALoadingIndicator {
     $gap: 10px;

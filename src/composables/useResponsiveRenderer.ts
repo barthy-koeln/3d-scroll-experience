@@ -1,5 +1,5 @@
-import type { ResizeListenerCallback } from '@/composables/useResizeListeners'
-import { PCFSoftShadowMap, sRGBEncoding, WebGLRenderer } from 'three'
+import type {ResizeListenerCallback} from '@/composables/useResizeListener'
+import {PCFSoftShadowMap, SRGBColorSpace, WebGLRenderer} from 'three'
 
 type ResponsiveRenderer = {
   renderer: WebGLRenderer,
@@ -15,9 +15,9 @@ export function useResponsiveRenderer (canvas: HTMLCanvasElement): ResponsiveRen
     }
   )
 
-  renderer.physicallyCorrectLights = true
+  renderer.useLegacyLights = false
   renderer.shadowMap.enabled = true
-  renderer.outputEncoding = sRGBEncoding
+  renderer.outputColorSpace = SRGBColorSpace
   renderer.shadowMap.type = PCFSoftShadowMap
 
   return {

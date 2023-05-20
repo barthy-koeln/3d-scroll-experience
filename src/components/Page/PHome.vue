@@ -34,15 +34,16 @@
   import MControlsChooser from '@/components/Molecule/MControlsChooser.vue'
   import MFeaturePreview from '@/components/Molecule/MFeaturePreview.vue'
   import MHeader from '@/components/Molecule/MHeader.vue'
-  import type { ScrollRevealItem } from '@/components/Organism/OAppearList.vue'
   import OAppearList from '@/components/Organism/OAppearList.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
-  import type { RotationAnimation } from '@/composables/useRotationAnimation'
-  import { useRotationAnimation } from '@/composables/useRotationAnimation'
-  import { MAX_ANIMATION_FACTOR } from '@/constants'
+  import type {RotationAnimation} from '@/composables/useRotationAnimation'
+  import {MAX_ANIMATION_FACTOR} from '@/constants'
   import Lenis from '@studio-freight/lenis'
-  import type { Object3D } from 'three'
-  import { defineComponent, toRaw } from 'vue'
+  import type {Object3D} from 'three'
+  import {defineComponent, inject, toRaw} from 'vue'
+  import type {ScrollRevealItem} from "@/types";
+  import {CameraOperator, CameraOperatorService} from "@/services/CameraOperator";
+  import {AnimationDirector, AnimationDirectorService} from "@/services/AnimationDirector";
 
   const staticRevealItems = [
     {
@@ -169,8 +170,13 @@
         framesPerSecond: 30
       }
 
+      const cameraOperator = inject<CameraOperator>(CameraOperatorService)
+      const animationDirector = inject<AnimationDirector>(AnimationDirectorService)
+      
       return {
         lenis,
+        cameraOperator,
+        animationDirector,
         vinylAnimation: {} as RotationAnimation,
         duration: config.frameCount / config.framesPerSecond,
         scrollHeight: config.frameCount * config.framesPerSecond,
@@ -189,9 +195,6 @@
     },
 
     computed: {
-      scene () {
-        return this.$refs.scene as InstanceType<typeof OInterActiveScene>
-      },
 
       scrollRevealItems (): ScrollRevealItem[] {
         return [
@@ -228,7 +231,10 @@
 
     mounted () {
       this.lenis.on('scroll', this.onScroll)
-      this.vinylAnimation = useRotationAnimation(33, this.scene.getObjectByName('Vinyl') as Object3D, 'y')
+
+      this.$nextTick(() => {
+        // this.vinylAnimation = useRotationAnimation(33, this.$refs.scene.getObjectByName('Vinyl') as Object3D, 'y')
+      })
     },
 
     beforeUnmount () {
@@ -261,12 +267,12 @@
           this.currentFrame = currentFrame
         }
 
-        this.scene.setAnimationTime(scrollFactor * this.duration)
+        this.animationDirector?.setTime(scrollFactor * this.duration)
       },
 
       onFrame (time: number, delta: number) {
         if (this.currentFrame > 300) {
-          this.vinylAnimation.raf(delta)
+          this.vinylAnimation.update(delta)
         }
 
         !this.lenis.isStopped && this.lenis.raf(time)
@@ -280,19 +286,19 @@
         switch (newMode) {
           case 'scroll':
             this.disableInteractivity()
-            await this.scene.stopOrbitControls()
-            await this.scene.stopFPSControls()
-            await this.scene.camera.userData.restoreInitialConfig()
+            await this.$refs.scene.stopOrbitControls()
+            await this.$refs.scene.stopFPSControls()
+            await this.cameraOperator?.restore()
             break
           case 'orbit':
             this.enableInteractivity()
-            await this.scene.stopFPSControls()
-            await this.scene.startOrbitControls()
+            await this.$refs.scene.stopFPSControls()
+            await this.$refs.scene.startOrbitControls()
             break
           case 'fps':
             this.enableInteractivity()
-            await this.scene.stopOrbitControls()
-            await this.scene.startFPSControls()
+            await this.$refs.scene.stopOrbitControls()
+            await this.$refs.scene.startFPSControls()
             break
         }
 
@@ -301,21 +307,19 @@
 
       enableInteractivity () {
         this.lenis.stop()
-        // this.scene.startRaycasting()
-        this.scene.setAnimationTime(MAX_ANIMATION_FACTOR * this.duration)
+        // this.$refs.scene.startRaycasting()
+        this.animationDirector?.setTime(MAX_ANIMATION_FACTOR * this.duration)
       },
 
       disableInteractivity () {
         this.lenis.start()
-        // this.scene.stopRaycasting()
+        // this.$refs.scene.stopRaycasting()
       }
     }
   })
 </script>
 
 <style lang="scss">
-  @use "@/variables" as *;
-
   .PHome {
     width: 100%;
 

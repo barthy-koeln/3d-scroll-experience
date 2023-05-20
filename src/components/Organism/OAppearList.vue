@@ -17,46 +17,19 @@
   </div>
 </template>
 
-<script lang="ts">
-  import type { Component, PropType } from 'vue'
-  import { defineComponent } from 'vue'
+<script lang="ts" setup>
+  import {computed} from 'vue'
+  import type {ScrollRevealItem} from "@/types";
 
-  export type ScrollRevealItem = {
-    key: string,
-    component: Component,
+  const props = defineProps<{
+    items: ScrollRevealItem[],
+    currentFrame: number
+  }>()
 
-    class?: unknown,
-    style?: unknown,
-    props: Record<string, unknown>,
-
-    on?: Record<string, Function>,
-
-    startFrame: number,
-    endFrame: number
-  }
-
-  export default defineComponent({
-    name: 'OAppearList',
-
-    props: {
-      items: {
-        type: Array as PropType<ScrollRevealItem[]>,
-        required: true
-      },
-
-      currentFrame: {
-        type: Number,
-        required: true
-      }
-    },
-
-    computed: {
-      filteredItems () {
-        return this.items.filter((item: ScrollRevealItem) => {
-          return item.startFrame <= this.currentFrame && this.currentFrame < item.endFrame
-        })
-      }
-    }
+  const filteredItems = computed<ScrollRevealItem[]>(() => {
+    return props.items.filter((item: ScrollRevealItem) => {
+      return item.startFrame <= props.currentFrame && props.currentFrame < item.endFrame
+    })
   })
 </script>
 

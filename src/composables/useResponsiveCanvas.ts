@@ -1,15 +1,16 @@
-import type { ResizeListenerCallback } from '@/composables/useResizeListeners'
+import type {ResizeListenerCallback} from '@/composables/useResizeListener'
 
 type ResponsiveCanvas = {
   canvas: HTMLCanvasElement,
   updateCanvasDimensions: ResizeListenerCallback
 }
 
-export function useResponsiveCanvas (): ResponsiveCanvas {
+export function useResponsiveCanvas (className: string): ResponsiveCanvas {
   const canvas = document.createElement('canvas')
 
   canvas.width = document.documentElement.offsetWidth
   canvas.height = window.innerHeight
+  canvas.classList.add(className)
 
   return {
     canvas,

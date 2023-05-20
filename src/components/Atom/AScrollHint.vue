@@ -30,17 +30,10 @@
   </div>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from 'vue'
-
-  export default defineComponent({
-    name: 'AScrollHint'
-  })
+<script lang="ts" setup>
 </script>
 
 <style lang="scss">
-  @use "@/_variables.scss" as *;
-
   .AScrollHint {
     align-items: center;
     animation: bounce 2.5s infinite;

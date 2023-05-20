@@ -4,10 +4,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "ESNext",
+    "moduleResolution": "Node",
     "lib": ["dom", "dom.iterable", "esnext"],
     "paths": {
       "@/*": ["./src/*"]
     },
+    "module": "esnext",
     "typeRoots": [
       "./@types"
     ]

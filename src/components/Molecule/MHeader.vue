@@ -6,29 +6,14 @@
   </header>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from 'vue'
-
-  export default defineComponent({
-    name: 'MHeader',
-
-    props: {
-      title: {
-        type: String,
-        required: true
-      },
-
-      subTitle: {
-        type: String,
-        required: true
-      }
-    }
-  })
+<script lang="ts" setup>
+  defineProps<{
+    title: string,
+    subTitle: string
+  }>()
 </script>
 
 <style lang="scss">
-  @use "@/_variables.scss" as *;
-
   .MHeader {
     display: flex;
     flex-direction: column;

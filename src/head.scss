@@ -1,9 +1,9 @@
-@use "@/_variables.scss" as *;
-
 @import "@fontsource/inter/latin-700.css";
 @import "@fontsource/rubik/latin-900.css";
 
 :root {
+  $spacer: 1rem;
+
   // SIZES
   --spacer: #{$spacer};
 
@@ -23,9 +23,14 @@
   --font-title-family: "Rubik", sans-serif;
   --font-title-weight: bolder;
 
-  @each $index, $size in $spacers {
-    --spacer-#{$index}: #{$size};
-  }
+  --animation-duration: .3s;
+  --animation-easing: ease;
+
+  --spacer-1: #{0.35 * $spacer};
+  --spacer-2: #{0.5 * $spacer};
+  --spacer-3: #{1.0 * $spacer};
+  --spacer-4: #{1.5 * $spacer};
+  --spacer-5: #{2 * $spacer};
 }
 
 *,
@@ -74,7 +79,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity $duration $easing;
+  transition: opacity var(--animation-duration) var(--animation-easing);
 }
 
 .fade-enter-from,

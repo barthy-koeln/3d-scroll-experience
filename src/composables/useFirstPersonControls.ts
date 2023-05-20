@@ -1,12 +1,14 @@
-import { KeyboardControls } from '@/composables/KeyboardControls'
-import type { Object3D, PerspectiveCamera } from 'three'
-import { Vector3 } from 'three'
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
-import { ref } from 'vue'
+import {KeyboardControls} from '@/composables/KeyboardControls'
+import type {Object3D, PerspectiveCamera} from 'three'
+import {Vector3} from 'three'
+import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls'
+import {inject, ref} from 'vue'
+import {CameraOperator, CameraOperatorService} from "@/services/CameraOperator";
 
 export function useFirstPersonControls (camera: PerspectiveCamera, cameraTarget: Object3D, canvas: HTMLCanvasElement) {
   const pointerLockControls = ref<null | PointerLockControls>(null)
   const keyBoardControls = ref<null | KeyboardControls>(null)
+  const cameraOperator = inject<CameraOperator>(CameraOperatorService)
   const copyVector = new Vector3()
 
   const firstPersonControls = {
@@ -54,7 +56,7 @@ export function useFirstPersonControls (camera: PerspectiveCamera, cameraTarget:
       }
 
       keyBoardControls.value.start()
-      await camera.userData.tweenCamera(camera.position, { y: 0.8 })
+      await cameraOperator?.tween(camera.position, { y: 0.8 })
       canvas.addEventListener('click', onClick)
       pointerLockControls.value.connect()
       pointerLockControls.value.lock()

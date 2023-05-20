@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="element"
     class="OInterActiveScene"
     @pointerdown.passive="onPointerDown"
     @pointerup.passive="onPointerUp"
@@ -7,172 +8,135 @@
   </div>
 </template>
 
-<script lang="ts">
-  import { useBVHRaycaster } from '@/composables/useBVHRaycaster'
-  import { useClickWithoutDragging } from '@/composables/useClickWithoutDragging'
-  import { useDebuggableMaterials } from '@/composables/useDebuggableMaterials'
-  import { useDefaultScene } from '@/composables/useDefaultScene'
-  import { useEnvMap } from '@/composables/useEnvMap'
-  import { useFirstPersonControls } from '@/composables/useFirstPersonControls'
-  import { useInteractiveGLTF } from '@/composables/useInteractiveGLTF'
-  import { useOrbitControls } from '@/composables/useOrbitControls'
-  import { useResizeListeners } from '@/composables/useResizeListeners'
-  import { useResponsiveCamera } from '@/composables/useResponsiveCamera'
-  import { useResponsiveCanvas } from '@/composables/useResponsiveCanvas'
-  import { useResponsiveRenderer } from '@/composables/useResponsiveRenderer'
-  import { useRestorableCamera } from '@/composables/useRestorableCamera'
-  import { useTrackedPointer } from '@/composables/useTrackedPointer'
-  import { update as updateAllTweens } from '@tweenjs/tween.js'
-  import { Clock, Color, Object3D } from 'three'
-  import type { PropType, SetupContext } from 'vue'
-  import { defineComponent } from 'vue'
+<script lang="ts" setup>
+  import type {Color, Object3D} from "three";
+  import {Clock} from "three";
+  import {inject, nextTick, onBeforeUnmount, onMounted, ref} from "vue";
+  import {useResponsiveCanvas} from "@/composables/useResponsiveCanvas";
+  import {useResponsiveRenderer} from "@/composables/useResponsiveRenderer";
+  import {useEnvMap} from "@/composables/useEnvMap";
+  import {useDefaultScene} from "@/composables/useDefaultScene";
+  import {useDebuggableMaterials} from "@/composables/useDebuggableMaterials";
+  import {useInteractiveGLTF} from "@/composables/useInteractiveGLTF";
+  import {update as updateAllTweens} from "@tweenjs/tween.js";
+  import {useTrackedPointer} from "@/composables/useTrackedPointer";
+  import {useOrbitControls} from "@/composables/useOrbitControls";
+  import {useFirstPersonControls} from "@/composables/useFirstPersonControls";
+  import {useClickWithoutDragging} from "@/composables/useClickWithoutDragging";
+  import {useResizeListener} from "@/composables/useResizeListener";
+  import {useBVHRaycaster} from "@/composables/useBVHRaycaster";
+  import {CameraOperator, CameraOperatorService} from "@/services/CameraOperator";
+  import type {FrameCallback} from "@/types";
+  import {AnimationDirector, AnimationDirectorService} from "@/services/AnimationDirector";
 
-  export default defineComponent({
-    name: 'OInterActiveScene',
-
-    props: {
-      modelUrl: {
-        type: String,
-        required: true
-      },
-
-      interactiveElementNames: {
-        type: Array as PropType<string[]>,
-        default: () => []
-      },
-
-      hoverObject: {
-        type: Object as PropType<Object3D | null>,
-        default: () => null
-      },
-
-      activeObject: {
-        type: Object as PropType<Object3D | null>,
-        default: () => null
-      },
-
-      hoverColor: {
-        type: Object as PropType<Color>,
-        default: () => new Color(0xffdede)
-      },
-
-      frameCallback: {
-        type: Function as PropType<undefined | ((time: number, delta: number) => void)>,
-        default: () => null
-      }
-    },
-
-    data () {
-      return {
-        pointerDownLocation: null as [number, number] | null,
-        animationFrameId: null as number | null
-      }
-    },
-
-    async setup (props, context: SetupContext) {
-      const { canvas, updateCanvasDimensions } = useResponsiveCanvas()
-      const { renderer, updateRendererDimensions } = useResponsiveRenderer(canvas)
-
-      const envMap = await useEnvMap(renderer, '/envmap/brown_photostudio_02_1k.hdr')
-      const scene = useDefaultScene(envMap)
-      useDebuggableMaterials(scene)
-
-      const anisotropy = renderer.capabilities.getMaxAnisotropy()
-      const interactiveGltf = await useInteractiveGLTF(props.modelUrl, props.interactiveElementNames, scene, anisotropy)
-
-      const { camera: responsiveCamera, updateCameraDimensions } = useResponsiveCamera(interactiveGltf.camera)
-      const camera = useRestorableCamera(responsiveCamera, interactiveGltf.cameraTarget)
-
-      return {
-        ...interactiveGltf,
-        ...useBVHRaycaster(context),
-        ...useTrackedPointer(),
-        ...useOrbitControls(camera, interactiveGltf.cameraTarget, canvas),
-        ...useFirstPersonControls(camera, interactiveGltf.cameraTarget, canvas),
-        ...useClickWithoutDragging(context),
-        ...useResizeListeners([
-          updateCanvasDimensions,
-          updateCameraDimensions,
-          updateRendererDimensions
-        ]),
-
-        renderer,
-        canvas,
-        camera,
-        scene,
-        getObjectByName: scene.getObjectByName.bind(scene),
-        clock: new Clock()
-      }
-    },
-
-    async mounted () {
-      this.start()
-    },
-
-    beforeUnmount () {
-      this.stop()
-    },
-
-    emits: [
-      'update:hover',
-      'click',
-      'frame'
-    ],
-
-    watch: {
-      hoverObject (newHoverObject) {
-        if (newHoverObject) {
-          // hover
-
-          return
-        }
-
-        // no hover
-      }
-    },
-
-    methods: {
-
-      /**
-       * ! do not use reactivity here
-       */
-      render (time: number) {
-        const delta = this.clock.getDelta()
-        this.raycaster.setFromCamera(this.pointer, this.camera)
-
-        this.orbitControls?.enabled && this.orbitControls.update()
-        this.firstPersonControls?.enabled && this.firstPersonControls.update(delta)
-
-        this.updateIntersections(this.interactiveObjects, this.hoverObject)
-        updateAllTweens(time)
-
-        this.frameCallback?.(time, delta)
-
-        this.renderer.render(this.scene, this.camera)
-
-        this.animationFrameId = window.requestAnimationFrame(this.render)
-      },
-
-      start () {
-        this.startTrackingPointer()
-        this.startResizeListener()
-        this.$el.appendChild(this.canvas)
-
-        this.animationFrameId = window.requestAnimationFrame(this.render)
-      },
-
-      stop () {
-        if (this.animationFrameId) {
-          window.cancelAnimationFrame(this.animationFrameId)
-          this.animationFrameId = null
-        }
-
-        this.clipsMixer.timeScale = 0
-        this.stopTrackingPointer()
-        this.stopResizeListener()
-        this.canvas.remove()
-      }
+  const props = withDefaults(
+    defineProps<{
+      modelUrl: string,
+      envMapUrl?: string,
+      interactiveElementNames?: string[],
+      hoverObject?: Object3D|null,
+      activeObject?: Object3D|null,
+      hoverColor?: Color|null,
+      frameCallback?: FrameCallback|null
+    }>(),
+    {
+      envMapUrl: '/envmap/brown_photostudio_02_1k.hdr',
+      interactiveElementNames: () => [],
+      hoverObject: null,
+      activeObject: null,
+      hoverColor: null,
+      frameCallback: null
     }
+  )
+
+  const emit = defineEmits<{
+    'update:hover': [value: null|Object3D],
+    'click': [event: MouseEvent],
+    'frame': []
+  }>()
+
+  const clock = new Clock()
+  const element = ref<HTMLElement>()
+  const animationFrameId = ref<number|null>(null)
+
+  const { canvas, updateCanvasDimensions } = useResponsiveCanvas('OInterActiveScene__canvas')
+  const { renderer, updateRendererDimensions } = useResponsiveRenderer(canvas)
+
+  const envMap = await useEnvMap(renderer, props.envMapUrl)
+  const scene = useDefaultScene(envMap)
+
+  const anisotropy = renderer.capabilities.getMaxAnisotropy()
+  const {
+    camera,
+    cameraTarget,
+    interactiveObjects,
+  } = await useInteractiveGLTF(props.modelUrl, props.interactiveElementNames, scene, anisotropy)
+
+  const animationDirector = inject<AnimationDirector>(AnimationDirectorService)
+
+  const cameraOperator = inject<CameraOperator>(CameraOperatorService)
+  cameraOperator?.setActiveCamera(camera, 16 / 9)
+  cameraOperator?.setCameraTarget(cameraTarget)
+  cameraOperator?.addDirectLighting()
+
+  const getObjectByName = scene.getObjectByName.bind(scene)
+
+  const { raycaster, updateIntersections } = useBVHRaycaster((value) => emit('update:hover', value))
+  const pointer = useTrackedPointer()
+  const {startOrbitControls, stopOrbitControls, orbitControls} = useOrbitControls(camera, cameraTarget, canvas)
+  const {startFPSControls, stopFPSControls, firstPersonControls} = useFirstPersonControls(camera, cameraTarget, canvas)
+  const {onPointerUp, onPointerDown} = useClickWithoutDragging((event: MouseEvent) => emit('click', event))
+
+  useResizeListener((width: number, height: number) => {
+    updateCanvasDimensions(width, height)
+    updateRendererDimensions(width, height)
+    cameraOperator?.updateCameraDimensions(width, height)
+  })
+
+  defineExpose({
+    startOrbitControls,
+    stopOrbitControls,
+    orbitControls,
+    startFPSControls,
+    stopFPSControls,
+    firstPersonControls,
+    getObjectByName
+  })
+
+  useDebuggableMaterials(scene)
+
+  /**
+   * ! do not use reactivity here
+   */
+  function render (time: number) {
+    const delta = clock.getDelta()
+    raycaster.setFromCamera(pointer, camera)
+
+    orbitControls.value?.enabled && orbitControls.value.update()
+    firstPersonControls?.enabled && firstPersonControls.update(delta)
+
+    updateIntersections(interactiveObjects, props.hoverObject)
+    updateAllTweens(time)
+
+    props.frameCallback?.(time, delta)
+    renderer.render(scene, camera)
+    animationFrameId.value = window.requestAnimationFrame(render)
+  }
+
+  onMounted(async () => {
+    await nextTick()
+    element.value?.appendChild(canvas)
+    animationFrameId.value = window.requestAnimationFrame(render)
+  })
+
+  onBeforeUnmount(() => {
+    if (animationFrameId.value) {
+      window.cancelAnimationFrame(animationFrameId.value)
+      animationFrameId.value = null
+    }
+
+    animationDirector?.stopAnimation()
+    canvas.remove()
   })
 </script>
 
@@ -184,12 +148,12 @@
     height: 100vh;
     justify-content: center;
     width: 100%;
-  }
-
-  canvas {
-    height: auto;
-    inset: 0 0 0 0;
-    position: absolute;
-    width: 100%;
+    
+    &__canvas {
+      height: auto;
+      inset: 0 0 0 0;
+      position: absolute;
+      width: 100%;
+    }
   }
 </style>

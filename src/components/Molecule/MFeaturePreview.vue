@@ -15,34 +15,15 @@
   </div>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from 'vue'
-
-  export default defineComponent({
-    name: 'MFeaturePreview',
-
-    props: {
-      index: {
-        type: Number,
-        required: true
-      },
-
-      title: {
-        type: String,
-        required: true
-      },
-
-      paragraph: {
-        type: String,
-        required: true
-      }
-    }
-  })
+<script lang="ts" setup>
+  defineProps<{
+    index: number,
+    title: string,
+    paragraph: string
+  }>()
 </script>
 
 <style lang="scss">
-  @use "@/_variables.scss" as *;
-
   @keyframes wobble {
     0% {
       transform: translate(0, 0px);

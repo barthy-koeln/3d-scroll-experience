@@ -15,29 +15,14 @@
   </button>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from 'vue'
-
-  export default defineComponent({
-    name: 'AButton',
-
-    props: {
-      label: {
-        type: String,
-        default: undefined
-      },
-
-      active: {
-        type: Boolean,
-        default: false
-      }
-    }
-  })
+<script lang="ts" setup>
+  defineProps<{
+    label?: string,
+    active: boolean
+  }>()
 </script>
 
 <style lang="scss">
-  @use "@/_variables.scss" as *;
-
   .AButton {
     --bg: var(--color-dark);
     --color: var(--color-secondary-light);
@@ -51,7 +36,7 @@
     padding-block: var(--spacer);
     padding-inline: var(--spacer-4);
     pointer-events: all;
-    transition: $duration $easing;
+    transition: var(--animation-duration) var(--animation-easing);
     transition-property: opacity, color, background-color;
 
     &:hover,
