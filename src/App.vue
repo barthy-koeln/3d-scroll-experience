@@ -11,12 +11,12 @@
       >
         <KeepAlive>
           <Suspense>
-            <Component :is="Component"></Component>
+            <Component :is="Component" />
 
             <!-- loading state -->
             <template #fallback>
               <div class="App__loading">
-                <ALoadingIndicator/>
+                <ALoadingIndicator />
               </div>
             </template>
           </Suspense>
@@ -31,7 +31,22 @@
   setup
 >
   import ALoadingIndicator from '@/components/Atom/ALoadingIndicator.vue'
-  import {RouterView} from 'vue-router'
+  import { RouterView } from 'vue-router'
+  import { CompressedGLTFLoader, CompressedGLTFLoaderService } from '@/services/CompressedGLTFLoader'
+  import { CameraOperator, CameraOperatorService } from '@/services/CameraOperator'
+  import { AnimationDirector, AnimationDirectorService } from '@/services/AnimationDirector'
+  import { ControlsManager, ControlsManagerService } from '@/services/ControlsManager'
+  import { provide } from 'vue'
+
+  const compressedGLTFLoader = new CompressedGLTFLoader()
+  const cameraOperator = new CameraOperator()
+  const animationDirector = new AnimationDirector()
+  const controlsManager = new ControlsManager(animationDirector, cameraOperator)
+
+  provide(CompressedGLTFLoaderService, compressedGLTFLoader)
+  provide(CameraOperatorService, cameraOperator)
+  provide(AnimationDirectorService, animationDirector)
+  provide(ControlsManagerService, controlsManager)
 </script>
 
 <style lang="scss">

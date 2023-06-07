@@ -4,7 +4,7 @@
       v-for="index in 9"
       :key="index"
     >
-      <div/>
+      <div />
     </template>
   </div>
 </template>

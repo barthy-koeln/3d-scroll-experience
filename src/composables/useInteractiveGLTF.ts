@@ -1,13 +1,12 @@
-import {CompressedGLTFLoader, CompressedGLTFLoaderService} from '@/services/CompressedGLTFLoader'
-import {AnimationMixer, Box3, Light, Mesh, Object3D, PerspectiveCamera, Scene} from 'three'
-import type {GLTF} from 'three/examples/jsm/loaders/GLTFLoader'
-import {inject} from 'vue'
-import {AnimationDirector, AnimationDirectorService} from "@/services/AnimationDirector";
+import { CompressedGLTFLoader, CompressedGLTFLoaderService } from '@/services/CompressedGLTFLoader'
+import { AnimationMixer, Box3, Light, Mesh, Object3D, PerspectiveCamera, Scene } from 'three'
+import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
+import { inject } from 'vue'
+import { AnimationDirector, AnimationDirectorService } from '@/services/AnimationDirector'
 
 export interface InteractiveGltf {
   camera: PerspectiveCamera,
   cameraTarget: Object3D,
-  navMesh: Object3D,
   initialBox: Box3,
   interactiveObjects: Object3D[]
 }
@@ -23,7 +22,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
 
   function adjustVisibleItem (child: Object3D) {
     if (child instanceof Light) {
-      child.intensity *= .01
+      child.intensity *= 0.01
       child.castShadow = true
       child.shadow.mapSize.width = 1024
       child.shadow.mapSize.height = 1024
@@ -34,7 +33,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     if (child instanceof Mesh) {
       child.castShadow = true
       child.receiveShadow = true
-      child.material.envMapIntensity = .5
+      child.material.envMapIntensity = 0.5
 
       for (const map of adjustableMaps) {
         const texture = child.material[map]
@@ -57,12 +56,8 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
       interactiveObjects.push(object)
     }
 
-    const initialBox = new Box3().setFromObject(gltf.scene)
     const camera = gltf.scene.getObjectByName('camera') as PerspectiveCamera
     const cameraTarget = gltf.scene.getObjectByName('cameraTarget') as Object3D
-    const navMesh = gltf.scene.getObjectByName('navMesh') as Object3D
-
-    navMesh.visible = false
 
     gltf.scene.traverseVisible(adjustVisibleItem)
     scene.add(gltf.scene)
@@ -73,9 +68,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     resolve({
       camera,
       cameraTarget,
-      navMesh,
-      initialBox,
-      interactiveObjects,
+      interactiveObjects
     })
   }
 

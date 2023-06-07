@@ -1,8 +1,12 @@
 <template>
   <header class="MHeader">
-    <h1 class="MHeader__title">{{ title }}</h1>
+    <h1 class="MHeader__title">
+      {{ title }}
+    </h1>
 
-    <h2 class="MHeader__subtitle">{{ subTitle }}</h2>
+    <h2 class="MHeader__subtitle">
+      {{ subTitle }}
+    </h2>
   </header>
 </template>
 
@@ -28,7 +32,7 @@
 
     &__title {
       color: var(--color-light);
-      font-size: 8rem;
+      font-size: 6rem;
       -webkit-text-stroke: 2px var(--color-primary);
     }
 

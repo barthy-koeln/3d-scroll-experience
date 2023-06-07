@@ -1,23 +1,17 @@
 <template>
-  <div
-    :data-section="index"
-    class="MFeaturePreview"
-  >
+  <div class="MFeaturePreview">
     <h2 class="MFeaturePreview__title">
-      <em>STEP {{ index + 1 }}:</em>
-
-      <br/>
-
-      <span>{{ title }}</span>
+      {{ title }}
     </h2>
 
-    <p class="MFeaturePreview__paragraph">{{ paragraph }}</p>
+    <p class="MFeaturePreview__paragraph">
+      {{ paragraph }}
+    </p>
   </div>
 </template>
 
 <script lang="ts" setup>
   defineProps<{
-    index: number,
     title: string,
     paragraph: string
   }>()
@@ -45,26 +39,27 @@
     gap: var(--spacer);
     padding: 64px;
     position: absolute;
-    width: 512px;
+    width: max-content;
 
     &::before {
       animation: wobble 4s infinite;
       animation-fill-mode: both;
       background-image: linear-gradient(45deg, var(--color-secondary) 0%, var(--color-primary) 100%);
-      border-radius: var(--border-radius);
       content: "";
       inset: 0 0 0 0;
       overflow: hidden;
       position: absolute;
+      border-radius: 64px;
     }
 
     &__title {
-      font-size: 2.4rem;
+      font-size: 2rem;
     }
 
     &__paragraph {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       line-height: 1.2;
+      white-space: pre-line;
     }
   }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div
     :data-hover="hoverObject !== null || undefined"
-    :data-interactive="controlsMode === 'orbit' || undefined"
+    :data-interactive="isInteractive || undefined"
     class="PHome"
   >
     <div
@@ -11,49 +11,60 @@
     >
       <OInterActiveScene
         ref="scene"
-        :active-object="activeObject"
-        :frame-callback="onFrame"
-        :hover-object="hoverObject"
-        :interactive-element-names="[]"
         class="PHome__scene"
-        model-url="/models/turntable/turntable.web.gltf"
-        @click="onClick"
-        @update:hover="onUpdateHover"
+        model-url="/models/keypad/keypad.bake.gltf"
+        env-map-url="/envmap/brown_photostudio_02_1k.hdr"
       />
     </div>
 
     <OAppearList
       :current-frame="currentFrame"
-      :items="scrollRevealItems"
+      :items="staticRevealItems"
     />
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
   import AScrollHint from '@/components/Atom/AScrollHint.vue'
   import MControlsChooser from '@/components/Molecule/MControlsChooser.vue'
   import MFeaturePreview from '@/components/Molecule/MFeaturePreview.vue'
   import MHeader from '@/components/Molecule/MHeader.vue'
   import OAppearList from '@/components/Organism/OAppearList.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
-  import type {RotationAnimation} from '@/composables/useRotationAnimation'
-  import {MAX_ANIMATION_FACTOR} from '@/constants'
-  import Lenis from '@studio-freight/lenis'
-  import type {Object3D} from 'three'
-  import {defineComponent, inject, toRaw} from 'vue'
-  import type {ScrollRevealItem} from "@/types";
-  import {CameraOperator, CameraOperatorService} from "@/services/CameraOperator";
-  import {AnimationDirector, AnimationDirectorService} from "@/services/AnimationDirector";
+  import { computed, inject, ref } from 'vue'
+  import type { AnimationDirector } from '@/services/AnimationDirector'
+  import { AnimationDirectorService } from '@/services/AnimationDirector'
+  import { ControlsManager, ControlsManagerService } from '@/services/ControlsManager'
 
-  const staticRevealItems = [
+  const animationDirector = inject<AnimationDirector>(AnimationDirectorService) as AnimationDirector
+  const controlsManager = inject<ControlsManager>(ControlsManagerService) as ControlsManager
+
+  animationDirector.setConfig({
+    frameCount: 190,
+    framesPerSecond: 30
+  })
+
+  controlsManager.setAvailableControls([
+    'scroll',
+    'orbit'
+  ])
+
+  const hoverObject = ref(null)
+  const currentFrame = animationDirector.currentFrame
+  const controlsType = controlsManager.currentControlsType
+
+  const scrollHeight = computed(() => animationDirector.config?.frameCount * animationDirector.config?.framesPerSecond)
+  const isInteractive = computed(() => controlsType.value !== 'scroll')
+
+  const staticRevealItems = computed(() => [
     {
       key: 'header',
       component: MHeader,
       startFrame: 0,
       endFrame: 5,
       props: {
-        title: 'Hold My Sleeve!',
-        subTitle: 'Beautiful and space-saving cover holder'
+        title: 'Buttons on a Board!',
+        subTitle: 'Batteries Included.'
       }
     },
     {
@@ -66,257 +77,67 @@
     {
       key: 'step-1',
       component: MFeaturePreview,
-      startFrame: 5,
-      endFrame: 55,
+      startFrame: 25,
+      endFrame: 45,
       props: {
-        index: 0,
-        title: 'Remove The Dust Cover',
-        paragraph: 'It looks old and crappy anyway.'
+        title: 'Special Buttons',
+        paragraph: 'Non-configurable because we know\nwhat\'s good for you.'
       },
       style: {
-        '--border-radius': '22% 78% 54% 46% / 55% 55% 45% 45% ',
-        left: '4%',
-        bottom: '4%'
+        right: '4%',
+        top: '4%'
       }
     },
     {
       key: 'step-2',
       component: MFeaturePreview,
-      startFrame: 75,
-      endFrame: 125,
+      startFrame: 60,
+      endFrame: 80,
       props: {
-        index: 1,
-        title: 'Clip The Clippy Things',
-        paragraph: 'They will fit right into the dust cover\'s joints.'
+        title: 'Ergonomic Design',
+        paragraph: 'Was a consideration but not a requirement.'
       },
       style: {
-        '--border-radius': '30% 70% 70% 30% / 30% 30% 70% 70% ',
-        top: '4%',
-        left: '4%'
+        right: '4%',
+        bottom: '4%'
       }
     },
     {
       key: 'step-3',
       component: MFeaturePreview,
-      startFrame: 125,
-      endFrame: 175,
+      startFrame: 105,
+      endFrame: 125,
       props: {
-        index: 2,
-        title: 'Get Your Wax Out',
-        paragraph: 'Don\'t forget to wipe. And maybe wash your hands.'
+        title: 'Battery Indicator',
+        paragraph: 'But on the back, so that you can\'t\nsee it without lifting the keyboard.'
       },
       style: {
-        '--border-radius': '22% 78% 54% 46% / 55% 55% 45% 45%',
         right: '4%',
-        top: '8%'
+        top: '4%'
       }
     },
     {
       key: 'step-4',
       component: MFeaturePreview,
-      startFrame: 205,
-      endFrame: 255,
+      startFrame: 145,
+      endFrame: 165,
       props: {
-        index: 3,
-        title: 'Slip the sleeve into the clips',
-        paragraph: 'This will fit sleeves with up to two 220g vinyls.'
+        title: 'USB Dongle',
+        paragraph: 'Universal Serial Bus should work everywhere. Right? Right!??'
       },
       style: {
-        '--border-radius': '26% 74% 70% 30% / 74% 79% 21% 26%',
-        bottom: '8%',
-        right: '4%'
+        left: '4%',
+        bottom: '4%'
       }
     },
     {
-      key: 'step-5',
-      component: MFeaturePreview,
-      startFrame: 320,
-      endFrame: 370,
-      props: {
-        index: 4,
-        title: 'Lean Back & Enjoy The Music',
-        paragraph: 'And take some time to appreciate that beautiful cover.'
-      },
-      style: {
-        '--border-radius': '24% 76% 63% 37% / 81% 55% 45% 19%',
-        bottom: '4%',
-        left: '4%'
-      }
+      key: 'controls-chooser',
+      component: MControlsChooser,
+      startFrame: 190,
+      endFrame: Infinity,
+      class: 'PHome__controlsChooser'
     }
-  ]
-
-  export default defineComponent({
-    name: 'PHome',
-
-    components: {
-      OAppearList,
-      OInterActiveScene
-    },
-
-    setup () {
-      const lenis = new Lenis({
-        duration: 1.2,
-        orientation: 'vertical', // vertical, horizontal
-        gestureOrientation: 'vertical', // vertical, horizontal, both
-        smoothWheel: true,
-        wheelMultiplier: 1,
-        smoothTouch: false,
-        touchMultiplier: 2,
-        infinite: false
-      })
-
-      const config = {
-        frameCount: 390,
-        framesPerSecond: 30
-      }
-
-      const cameraOperator = inject<CameraOperator>(CameraOperatorService)
-      const animationDirector = inject<AnimationDirector>(AnimationDirectorService)
-      
-      return {
-        lenis,
-        cameraOperator,
-        animationDirector,
-        vinylAnimation: {} as RotationAnimation,
-        duration: config.frameCount / config.framesPerSecond,
-        scrollHeight: config.frameCount * config.framesPerSecond,
-        ...config
-      }
-    },
-
-    data () {
-      return {
-        hoverObject: null as Object3D | null,
-        activeObject: null as Object3D | null,
-        controlsMode: 'scroll',
-        currentFrame: 0,
-        showHelp: false
-      }
-    },
-
-    computed: {
-
-      scrollRevealItems (): ScrollRevealItem[] {
-        return [
-          ...staticRevealItems,
-          {
-            key: 'controls-chooser',
-            component: MControlsChooser,
-            startFrame: 380,
-            endFrame: 999,
-            class: 'PHome__controlsChooser',
-            props: {
-              mode: this.controlsMode
-            },
-
-            on: {
-              'update:mode': this.changeControlsMode
-            }
-          }
-        ]
-      }
-    },
-
-    watch: {
-      activeObject (newActiveObject, previousActiveObject) {
-        const rawNewActive = toRaw(newActiveObject)
-        const rawPreviousActive = toRaw(previousActiveObject)
-
-        console.info({
-          rawNewActive,
-          rawPreviousActive
-        })
-      }
-    },
-
-    mounted () {
-      this.lenis.on('scroll', this.onScroll)
-
-      this.$nextTick(() => {
-        // this.vinylAnimation = useRotationAnimation(33, this.$refs.scene.getObjectByName('Vinyl') as Object3D, 'y')
-      })
-    },
-
-    beforeUnmount () {
-      this.lenis.destroy()
-    },
-
-    methods: {
-      onClick () {
-        if (!this.hoverObject) {
-          return
-        }
-
-        if (this.hoverObject === this.activeObject) {
-          this.activeObject = null
-          return
-        }
-
-        this.activeObject = this.hoverObject
-      },
-
-      onUpdateHover (object: Object3D | null) {
-        this.hoverObject = object
-      },
-
-      onScroll () {
-        const scrollFactor = Math.min(MAX_ANIMATION_FACTOR, this.lenis.progress)
-
-        const currentFrame = Math.round(scrollFactor * this.frameCount)
-        if (currentFrame !== this.currentFrame) {
-          this.currentFrame = currentFrame
-        }
-
-        this.animationDirector?.setTime(scrollFactor * this.duration)
-      },
-
-      onFrame (time: number, delta: number) {
-        if (this.currentFrame > 300) {
-          this.vinylAnimation.update(delta)
-        }
-
-        !this.lenis.isStopped && this.lenis.raf(time)
-      },
-
-      async changeControlsMode (newMode: string) {
-        if (this.controlsMode === newMode) {
-          return
-        }
-
-        switch (newMode) {
-          case 'scroll':
-            this.disableInteractivity()
-            await this.$refs.scene.stopOrbitControls()
-            await this.$refs.scene.stopFPSControls()
-            await this.cameraOperator?.restore()
-            break
-          case 'orbit':
-            this.enableInteractivity()
-            await this.$refs.scene.stopFPSControls()
-            await this.$refs.scene.startOrbitControls()
-            break
-          case 'fps':
-            this.enableInteractivity()
-            await this.$refs.scene.stopOrbitControls()
-            await this.$refs.scene.startFPSControls()
-            break
-        }
-
-        this.controlsMode = newMode
-      },
-
-      enableInteractivity () {
-        this.lenis.stop()
-        // this.$refs.scene.startRaycasting()
-        this.animationDirector?.setTime(MAX_ANIMATION_FACTOR * this.duration)
-      },
-
-      disableInteractivity () {
-        this.lenis.start()
-        // this.$refs.scene.stopRaycasting()
-      }
-    }
-  })
+  ])
 </script>
 
 <style lang="scss">

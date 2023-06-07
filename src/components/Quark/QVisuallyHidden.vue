@@ -1,6 +1,6 @@
 <template v-once>
   <span class="QVisuallyHidden">
-    <slot/>
+    <slot />
   </span>
 </template>
 

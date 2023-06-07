@@ -1,5 +1,5 @@
-import type {ResizeListenerCallback} from '@/composables/useResizeListener'
-import {PCFSoftShadowMap, SRGBColorSpace, WebGLRenderer} from 'three'
+import type { ResizeListenerCallback } from '@/composables/useResizeListener'
+import { PCFSoftShadowMap, SRGBColorSpace, WebGLRenderer } from 'three'
 
 type ResponsiveRenderer = {
   renderer: WebGLRenderer,

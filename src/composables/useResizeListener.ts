@@ -1,4 +1,4 @@
-import {onBeforeUnmount, onMounted} from "vue";
+import { onBeforeUnmount, onMounted } from 'vue'
 
 export type ResizeListenerCallback = (width: number, height: number) => void
 

@@ -3,4 +3,4 @@
 mogrify -quality 90 -resize 2048x2048\> public/models/**/*.jpg
 mogrify -quality 90 -resize 2048x2048\> public/models/**/*.png
 
-du -sch public/models/turntable/*
+du -sch public/models/*/*

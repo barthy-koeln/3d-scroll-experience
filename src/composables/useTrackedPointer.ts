@@ -1,6 +1,5 @@
-import {Vector2} from 'three'
-import {onBeforeUnmount, onMounted} from "vue";
-
+import { Vector2 } from 'three'
+import { onBeforeUnmount, onMounted } from 'vue'
 
 export function useTrackedPointer (): Vector2 {
   const pointer = new Vector2()

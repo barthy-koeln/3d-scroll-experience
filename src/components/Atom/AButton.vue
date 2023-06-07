@@ -4,18 +4,21 @@
     class="AButton"
     type="button"
     v-bind="$attrs"
+    @click="$emit('click')"
   >
     <template v-if="label">
       {{ label }}
     </template>
 
     <template v-else>
-      <slot/>
+      <slot />
     </template>
   </button>
 </template>
 
 <script lang="ts" setup>
+  defineEmits(['click'])
+
   defineProps<{
     label?: string,
     active: boolean
@@ -25,7 +28,7 @@
 <style lang="scss">
   .AButton {
     --bg: var(--color-dark);
-    --color: var(--color-secondary-light);
+    --color: var(--color-light);
 
     align-items: center;
     background-color: var(--bg);

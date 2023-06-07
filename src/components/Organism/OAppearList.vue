@@ -18,8 +18,8 @@
 </template>
 
 <script lang="ts" setup>
-  import {computed} from 'vue'
-  import type {ScrollRevealItem} from "@/types";
+  import { computed } from 'vue'
+  import type { ScrollRevealItem } from '@/types'
 
   const props = defineProps<{
     items: ScrollRevealItem[],

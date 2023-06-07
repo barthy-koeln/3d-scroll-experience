@@ -1,10 +1,8 @@
-import {DRACOLoader} from 'three/examples/jsm/loaders/DRACOLoader'
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
-
-export class CompressedGLTFLoader extends GLTFLoader
-{
-  constructor() {
+export class CompressedGLTFLoader extends GLTFLoader {
+  constructor () {
     super()
 
     const dracoLoader = new DRACOLoader()
@@ -15,4 +13,4 @@ export class CompressedGLTFLoader extends GLTFLoader
   }
 }
 
-export const CompressedGLTFLoaderService = Symbol()
+export const CompressedGLTFLoaderService = Symbol('DISymbol')

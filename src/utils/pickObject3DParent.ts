@@ -1,4 +1,4 @@
-import type {Object3D} from 'three'
+import type { Object3D } from 'three'
 
 /**
  * Starts at a child and bubbled upwards until it finds one of the possible parents.

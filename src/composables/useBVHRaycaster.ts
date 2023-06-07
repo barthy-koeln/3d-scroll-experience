@@ -1,7 +1,7 @@
 import '@/mesh-bvh'
-import {pickObject3DParent} from '@/utils/pickObject3DParent'
-import {Object3D, Raycaster} from 'three'
-import {ref} from 'vue'
+import { pickObject3DParent } from '@/utils/pickObject3DParent'
+import { Object3D, Raycaster } from 'three'
+import { ref } from 'vue'
 
 export function useBVHRaycaster (updateHoverItem: (value: null|Object3D) => void) {
   const raycaster = new Raycaster()

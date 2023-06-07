@@ -1,58 +1,74 @@
 <template>
   <div class="MControlsChooser">
-    <AButton
-      :active="mode === 'scroll'"
-      @click="emit('update:mode', 'scroll')"
-    >
-      <span>Scroll</span>
+    <p>Try it out! You can interact with this demo.</p>
 
-      <IScroll/>
-    </AButton>
+    <div class="MControlsChooser__buttons">
+      <template
+        v-for="(config, key) in configs"
+        :key="key"
+      >
+        <AButton
+          v-if="availableControls.includes(key)"
+          :active="currentControlsType === key"
+          @click="onClick(key)"
+        >
+          <span>{{ config.title }}</span>
 
-    <AButton
-      :active="mode === 'orbit'"
-      @click="emit('update:mode', 'orbit')"
-    >
-      <span>Orbit</span>
-      
-      <IOrbit/>
-    </AButton>
-
-    <AButton
-      :active="mode === 'fps'"
-      @click="emit('update:mode', 'fps')"
-    >
-      <span>FPV + WASD / Arrows</span>
-
-      <IArrows/>
-    </AButton>
+          <Component :is="config.icon" />
+        </AButton>
+      </template>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
   import AButton from '@/components/Atom/AButton.vue'
-  import IScroll from "@/components/Icon/IScroll.vue";
-  import IOrbit from "@/components/Icon/IOrbit.vue";
-  import IArrows from "@/components/Icon/IArrows.vue";
+  import IScroll from '@/components/Icon/IScroll.vue'
+  import IOrbit from '@/components/Icon/IOrbit.vue'
+  import IArrows from '@/components/Icon/IArrows.vue'
+  import type { Component } from 'vue'
+  import { inject } from 'vue'
+  import type { ControlsType } from '@/services/ControlsManager'
+  import { ControlsManager, ControlsManagerService } from '@/services/ControlsManager'
 
-  defineProps<{
-    mode: 'scroll'|'orbit'|'fps'
-  }>()
+  const controlsManager = inject<ControlsManager>(ControlsManagerService) as ControlsManager
+  const { availableControls, currentControlsType } = controlsManager
 
-  const emit = defineEmits<{
-    (e: 'update:mode', value: string): void
-  }>()
+  type ButtonConfig = {
+    title: string,
+    icon: Component
+  }
+
+  const configs: Record<ControlsType, ButtonConfig> = {
+    scroll: {
+      title: 'Scroll',
+      icon: IScroll
+    },
+    orbit: {
+      title: 'Orbit',
+      icon: IOrbit
+    },
+    firstPerson: {
+      title: 'FPV + WASD / Arrows',
+      icon: IArrows
+    }
+  }
+
+  function onClick (type: ControlsType) {
+    controlsManager.switchControls(type)
+  }
 </script>
 
 <style lang="scss">
   .MControlsChooser {
     display: flex;
     gap: var(--spacer);
-    opacity: .7;
-    transition: opacity var(--animation-duration) var(--animation-easing);
+    flex-direction: column;
+    align-items: center;
 
-    &:hover {
-      opacity: 1;
+    &__buttons {
+      display: flex;
+      gap: var(--spacer);
     }
   }
 </style>

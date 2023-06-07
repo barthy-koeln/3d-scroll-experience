@@ -1,4 +1,4 @@
-import type {ResizeListenerCallback} from '@/composables/useResizeListener'
+import type { ResizeListenerCallback } from '@/composables/useResizeListener'
 
 type ResponsiveCanvas = {
   canvas: HTMLCanvasElement,

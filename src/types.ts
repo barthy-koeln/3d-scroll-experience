@@ -1,4 +1,4 @@
-import type {Component} from "vue";
+import type { Component } from 'vue'
 
 export interface ScrollRevealItem {
     key: string,
@@ -6,7 +6,7 @@ export interface ScrollRevealItem {
 
     class?: unknown,
     style?: unknown,
-    props: Record<string, unknown>,
+    props?: Record<string, unknown>,
 
     on?: Record<string, Function>,
 

@@ -1,4 +1,4 @@
-import {ref} from 'vue'
+import { ref } from 'vue'
 
 export function useClickWithoutDragging (onClick: (event: MouseEvent) => void, maximumClickDistance = 5) {
   const lastPointerDownX = ref<number | null>(null)
