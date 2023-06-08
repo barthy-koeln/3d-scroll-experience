@@ -32,18 +32,6 @@
 >
   import ALoadingIndicator from '@/components/Atom/ALoadingIndicator.vue'
   import { RouterView } from 'vue-router'
-  import { CompressedGLTFLoader, CompressedGLTFLoaderService } from '@/services/CompressedGLTFLoader'
-  import { CameraOperator, CameraOperatorService } from '@/services/CameraOperator'
-  import { AnimationDirector, AnimationDirectorService } from '@/services/AnimationDirector'
-  import { provide } from 'vue'
-
-  const compressedGLTFLoader = new CompressedGLTFLoader()
-  const cameraOperator = new CameraOperator()
-  const animationDirector = new AnimationDirector()
-
-  provide(CompressedGLTFLoaderService, compressedGLTFLoader)
-  provide(CameraOperatorService, cameraOperator)
-  provide(AnimationDirectorService, animationDirector)
 </script>
 
 <style lang="scss">

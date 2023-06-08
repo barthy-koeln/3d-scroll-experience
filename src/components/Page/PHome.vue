@@ -18,7 +18,7 @@
     </div>
 
     <OAppearList
-      :current-frame="currentFrame"
+      :current-frame="animationsStore.currentFrame"
       :items="staticRevealItems"
     />
   </div>
@@ -31,14 +31,14 @@
   import MHeader from '@/components/Molecule/MHeader.vue'
   import OAppearList from '@/components/Organism/OAppearList.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
-  import { computed, inject, ref } from 'vue'
-  import type { AnimationDirector } from '@/services/AnimationDirector'
-  import { AnimationDirectorService } from '@/services/AnimationDirector'
+  import { computed, ref } from 'vue'
   import { useControlsStore } from '@/state/useControlsStore'
+  import { useAnimationsStore } from '@/state/useAnimationsStore'
 
-  const animationDirector = inject<AnimationDirector>(AnimationDirectorService) as AnimationDirector
   const controlsStore = useControlsStore()
-  animationDirector.setConfig({
+  const animationsStore = useAnimationsStore()
+
+  animationsStore.setConfig({
     frameCount: 190,
     framesPerSecond: 30
   })
@@ -49,9 +49,8 @@
   ])
 
   const hoverObject = ref(null)
-  const currentFrame = animationDirector.currentFrame
 
-  const scrollHeight = computed(() => animationDirector.config?.frameCount * animationDirector.config?.framesPerSecond)
+  const scrollHeight = computed(() => animationsStore.config?.frameCount * animationsStore.config?.framesPerSecond)
   const isInteractive = computed(() => controlsStore.currentControlsType !== 'scroll')
 
   const staticRevealItems = computed(() => [

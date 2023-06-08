@@ -1,20 +1,19 @@
-import { CompressedGLTFLoader, CompressedGLTFLoaderService } from '@/services/CompressedGLTFLoader'
-import { AnimationMixer, Box3, Light, Mesh, Object3D, PerspectiveCamera, Scene } from 'three'
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
-import { inject } from 'vue'
-import { AnimationDirector, AnimationDirectorService } from '@/services/AnimationDirector'
+import { useCompressedGLTFLoader } from '@/composables/useCompressedGLTFLoader'
+import { AnimationMixer, Light, Mesh, Object3D, PerspectiveCamera, Scene } from 'three'
+import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { useAnimationsStore } from '@/state/useAnimationsStore'
 
 export interface InteractiveGltf {
   camera: PerspectiveCamera,
   cameraTarget: Object3D,
-  initialBox: Box3,
   interactiveObjects: Object3D[]
 }
 
 export async function useInteractiveGLTF (url: string, interactiveElementNames: string[], scene: Scene, anisotropy: number): Promise<InteractiveGltf> {
-  const gltfLoader = inject<CompressedGLTFLoader>(CompressedGLTFLoaderService)
-  const animationDirector = inject<AnimationDirector>(AnimationDirectorService)
+  const gltfLoader = useCompressedGLTFLoader()
   const adjustableMaps = ['map', 'normalMap', 'roughnessMap', 'metalnessMap']
+
+  const animationsStore = useAnimationsStore()
 
   function prepareObjectForInteractivity (object: Object3D) {
     object.userData.initialPosition = object.position.clone()
@@ -45,41 +44,31 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     }
   }
 
-  const onLoad = (resolve: Function, interactiveElementNames: string[], interactiveObjects: Object3D[]) => (gltf: GLTF) => {
-    for (const objectName of interactiveElementNames) {
-      const object = gltf.scene.getObjectByName(objectName)
-      if (!object) {
-        continue
-      }
-
-      prepareObjectForInteractivity(object)
-      interactiveObjects.push(object)
-    }
-
-    const camera = gltf.scene.getObjectByName('camera') as PerspectiveCamera
-    const cameraTarget = gltf.scene.getObjectByName('cameraTarget') as Object3D
-
-    gltf.scene.traverseVisible(adjustVisibleItem)
-    scene.add(gltf.scene)
-
-    animationDirector?.setMixer(new AnimationMixer(gltf.scene))
-    animationDirector?.addClips(gltf.animations)
-
-    resolve({
-      camera,
-      cameraTarget,
-      interactiveObjects
-    })
-  }
+  const gltf: GLTF = await gltfLoader.loadAsync(url)
 
   const interactiveObjects = [] as Object3D[]
+  for (const objectName of interactiveElementNames) {
+    const object = gltf.scene.getObjectByName(objectName)
+    if (!object) {
+      continue
+    }
 
-  return new Promise<InteractiveGltf>(function (resolve, reject) {
-    gltfLoader?.load(
-      url,
-      onLoad(resolve, interactiveElementNames, interactiveObjects),
-      undefined,
-      reject
-    )
-  })
+    prepareObjectForInteractivity(object)
+    interactiveObjects.push(object)
+  }
+
+  const camera = gltf.scene.getObjectByName('camera') as PerspectiveCamera
+  const cameraTarget = gltf.scene.getObjectByName('cameraTarget') as Object3D
+
+  gltf.scene.traverseVisible(adjustVisibleItem)
+  scene.add(gltf.scene)
+
+  animationsStore.setMixer(new AnimationMixer(gltf.scene))
+  animationsStore.addClips(gltf.animations)
+
+  return {
+    camera,
+    cameraTarget,
+    interactiveObjects
+  }
 }

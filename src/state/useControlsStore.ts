@@ -1,64 +1,73 @@
 import { defineStore } from 'pinia'
 
-import { AnimationDirector, AnimationDirectorService } from '@/services/AnimationDirector'
-import { CameraOperator, CameraOperatorService } from '@/services/CameraOperator'
-import { ControlsInterface } from '@/services/controls/ControlsInterface'
-import { inject, ref } from 'vue'
+import { ControlsInterface } from '@/controls/ControlsInterface'
+import { ref, shallowRef } from 'vue'
+import { useAnimationsStore } from '@/state/useAnimationsStore'
+import type { Camera, Vector3 } from 'three'
+import { useCameraStore } from '@/state/useCameraStore'
 
 export type ControlsType = 'scroll' | 'orbit' | 'firstPerson'
 
-type ControlsConstructor = new (animationDirector: AnimationDirector, cameraOperator: CameraOperator) => ControlsInterface;
-type ControlsFactory = () => Promise<ControlsConstructor>
+type ControlsFactory = () => Promise<ControlsInterface>
 
-const factories: Record<ControlsType, ControlsFactory> = {
-  firstPerson: () => import('../services/controls/FirstPersonControls').then(module => module.FirstPersonControls),
-  orbit: () => import('../services/controls/OrbitControls').then(module => module.OrbitControls),
-  scroll: () => import('../services/controls/ScrollControls').then(module => module.ScrollControls)
-}
 export const useControlsStore = defineStore('controls', () => {
   const controls: Map<ControlsType, ControlsInterface> = new Map()
   const currentControlsType = ref<ControlsType>()
   const nextControlsType = ref<ControlsType|null>()
   const availableControls = ref<ControlsType[]>(['scroll', 'orbit', 'firstPerson'])
+  const currentControls = shallowRef<ControlsInterface|null>()
 
-  const animationDirector = inject<AnimationDirector>(AnimationDirectorService) as AnimationDirector
-  const cameraOperator = inject<CameraOperator>(CameraOperatorService) as CameraOperator
+  const animationsStore = useAnimationsStore()
+  const cameraStore = useCameraStore()
 
-  let currentControls: ControlsInterface|null = null
+  const factories: Record<ControlsType, ControlsFactory> = {
+    firstPerson: async () => {
+      const module = await import('@/controls/FirstPersonControls')
+
+      return new module.FirstPersonControls(
+        cameraStore.camera as Camera,
+        cameraStore.canvas as HTMLCanvasElement,
+        cameraStore.goToPersonHeight
+      )
+    },
+
+    orbit: async () => {
+      const module = await import('@/controls/OrbitControls')
+
+      return new module.OrbitControls(
+        cameraStore.camera as Camera,
+        cameraStore.canvas as HTMLCanvasElement,
+        cameraStore.cameraTarget?.position as Vector3,
+        cameraStore.lookAtTarget
+      )
+    },
+
+    scroll: async () => {
+      const module = await import('@/controls/ScrollControls')
+
+      return new module.ScrollControls(
+        animationsStore.setFactor,
+        cameraStore.restore
+      )
+    }
+  }
 
   async function change (type: ControlsType) {
     nextControlsType.value = type
 
     if (!controls.has(type)) {
       const factory = factories[type]
-      const Constructor = await factory()
-      controls.set(type, new Constructor(animationDirector, cameraOperator))
+      controls.set(type, await factory())
     }
 
     const newControls = controls.get(type) as ControlsInterface
 
-    currentControls?.stop()
+    currentControls.value?.stop()
     await newControls.start()
 
-    currentControls = newControls
+    currentControls.value = newControls
     currentControlsType.value = type
     nextControlsType.value = null
-  }
-
-  async function start (): Promise<void> {
-    if (!currentControls) {
-      await change('scroll')
-    }
-
-    currentControls?.start()
-  }
-
-  function stop (): void {
-    currentControls?.stop()
-  }
-
-  function update (time: number, delta: number) {
-    currentControls?.update(time, delta)
   }
 
   function setAvailableControls (controls: ControlsType[]): void {
@@ -66,13 +75,11 @@ export const useControlsStore = defineStore('controls', () => {
   }
 
   return {
+    currentControls,
     currentControlsType,
     nextControlsType,
     availableControls,
     setAvailableControls,
-    change,
-    start,
-    stop,
-    update
+    change
   }
 })

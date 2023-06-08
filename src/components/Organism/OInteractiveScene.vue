@@ -10,7 +10,7 @@
 <script lang="ts" setup>
   import type { Object3D } from 'three'
   import { Clock } from 'three'
-  import { inject, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+  import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
   import { useResponsiveCanvas } from '@/composables/useResponsiveCanvas'
   import { useResponsiveRenderer } from '@/composables/useResponsiveRenderer'
   import { useEnvMap } from '@/composables/useEnvMap'
@@ -21,9 +21,9 @@
   import { useTrackedPointer } from '@/composables/useTrackedPointer'
   import { useClickWithoutDragging } from '@/composables/useClickWithoutDragging'
   import { useResizeListener } from '@/composables/useResizeListener'
-  import { CameraOperator, CameraOperatorService } from '@/services/CameraOperator'
-  import { AnimationDirector, AnimationDirectorService } from '@/services/AnimationDirector'
   import { useControlsStore } from '@/state/useControlsStore'
+  import { useAnimationsStore } from '@/state/useAnimationsStore'
+  import { useCameraStore } from '@/state/useCameraStore'
 
   const props = defineProps<{
     modelUrl: string,
@@ -40,6 +40,8 @@
   const element = ref<HTMLElement>()
   const animationFrameId = ref<number|null>(null)
   const controlsStore = useControlsStore()
+  const animationsStore = useAnimationsStore()
+  const cameraStore = useCameraStore()
 
   const { canvas, updateCanvasDimensions } = useResponsiveCanvas('OInterActiveScene__canvas')
   const { renderer, updateRendererDimensions } = useResponsiveRenderer(canvas)
@@ -54,12 +56,9 @@
     interactiveObjects
   } = await useInteractiveGLTF(props.modelUrl, [], scene, anisotropy)
 
-  const animationDirector = inject<AnimationDirector>(AnimationDirectorService)
-  const cameraOperator = inject<CameraOperator>(CameraOperatorService)
-  cameraOperator?.setCamera(camera, 16 / 9)
-  cameraOperator?.setCameraTarget(cameraTarget)
-  cameraOperator?.setCanvas(canvas)
-  cameraOperator?.addDirectLighting()
+  cameraStore.setCamera(camera, 16 / 9)
+  cameraStore.setCameraTarget(cameraTarget)
+  cameraStore.setCanvas(canvas)
 
   // const { raycaster, updateIntersections } = useBVHRaycaster((value) => emit('update:hover', value))
   const pointer = useTrackedPointer()
@@ -69,7 +68,7 @@
   useResizeListener((width: number, height: number) => {
     updateCanvasDimensions(width, height)
     updateRendererDimensions(width, height)
-    cameraOperator?.updateCameraDimensions(width, height)
+    cameraStore.updateCameraDimensions(width, height)
   })
 
   useDebuggableMaterials(scene)
@@ -81,7 +80,7 @@
     const delta = clock.getDelta()
     // raycaster.setFromCamera(pointer, camera)
 
-    controlsStore?.update(time, delta)
+    controlsStore.currentControls?.update(time, delta)
 
     // updateIntersections(interactiveObjects, props.hoverObject)
     updateAllTweens(time)
@@ -92,9 +91,11 @@
 
   onMounted(async () => {
     await nextTick()
+
     element.value?.appendChild(canvas)
     animationFrameId.value = window.requestAnimationFrame(render)
-    controlsStore?.start()
+
+    await controlsStore.change('scroll')
   })
 
   onBeforeUnmount(() => {
@@ -103,8 +104,8 @@
       animationFrameId.value = null
     }
 
-    animationDirector?.stopAnimation()
-    controlsStore?.stop()
+    animationsStore.mixer?.stopAllAction()
+    controlsStore.currentControls?.stop()
     canvas.remove()
   })
 </script>
