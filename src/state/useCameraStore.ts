@@ -3,7 +3,7 @@ import { ref, shallowRef } from 'vue'
 import type { Quaternion, Vector3 } from 'three'
 import { Object3D, PerspectiveCamera } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { DURATION } from '@/constants'
+import { DURATION_LONG } from '@/constants'
 import { getLargestRectInRect } from '@/utils/getLargestRectInRect'
 
 class CameraOperatorNotInitializedError extends Error {
@@ -42,9 +42,8 @@ export const useCameraStore = defineStore('camera', () => {
   function tween<T extends Object> (from: T, to: Partial<T>, onUpdate?: (object: T, elapsed: number) => void): Promise<T> {
     return new Promise(resolve => {
       const tween = new Tween(from)
-        .duration(DURATION)
         .easing(Easing.Cubic.InOut)
-        .to(to)
+        .to(to, DURATION_LONG)
         .onComplete(resolve)
 
       if (onUpdate) {

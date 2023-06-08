@@ -18,12 +18,14 @@ export function useRotationAnimation (RPM: number, target: Object3D, axis: 'x' |
     reset () {
       return new Promise(resolve => {
         new Tween<Euler>(target.rotation)
-          .duration(DURATION)
           .easing(Easing.Exponential.Out)
-          .to({
-            ...target.rotation,
-            [axis]: initial
-          })
+          .to(
+            {
+              ...target.rotation,
+              [axis]: initial
+            },
+            DURATION
+          )
           .onComplete(resolve)
       })
     }

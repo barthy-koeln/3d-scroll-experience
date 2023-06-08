@@ -1,6 +1,6 @@
 <template>
   <div
-    :data-hover="hoverObject !== null || undefined"
+    :data-hover="interactiveObjectsStore.hoverObject !== null || undefined"
     :data-interactive="isInteractive || undefined"
     class="PHome"
   >
@@ -14,6 +14,36 @@
         class="PHome__scene"
         model-url="/models/keypad/keypad.bake.gltf"
         env-map-url="/envmap/brown_photostudio_02_1k.hdr"
+        :interactive-element-names="[
+          'key-0',
+          'key-1',
+          'key-2',
+          'key-3',
+          'key-4',
+          'key-5',
+          'key-6',
+          'key-7',
+          'key-8',
+          'key-9',
+          'key-asterisk',
+          'key-backward',
+          'key-calculator',
+          'key-colon',
+          'key-enter',
+          'key-forward',
+          'key-home',
+          'key-mail',
+          'key-minus',
+          'key-num',
+          'key-play-pause',
+          'key-plus',
+          'key-screen',
+          'key-search',
+          'key-slash',
+          'key-stop',
+        ]"
+        @pointerdown.passive="onPointerDown"
+        @pointerup.passive="onPointerUp"
       />
     </div>
 
@@ -31,12 +61,18 @@
   import MHeader from '@/components/Molecule/MHeader.vue'
   import OAppearList from '@/components/Organism/OAppearList.vue'
   import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
-  import { computed, ref } from 'vue'
+  import { computed } from 'vue'
   import { useControlsStore } from '@/state/useControlsStore'
   import { useAnimationsStore } from '@/state/useAnimationsStore'
+  import { useInteractiveObjectsStore } from '@/state/useInteractiveObjectsStore'
+  import { useClickWithoutDragging } from '@/composables/useClickWithoutDragging'
+  import { Easing, Tween } from '@tweenjs/tween.js'
+  import { DURATION_SNAPPY } from '@/constants'
 
   const controlsStore = useControlsStore()
   const animationsStore = useAnimationsStore()
+  const interactiveObjectsStore = useInteractiveObjectsStore()
+  const tweens = new Map<string, Tween<unknown>>()
 
   animationsStore.setConfig({
     frameCount: 190,
@@ -48,7 +84,30 @@
     'orbit'
   ])
 
-  const hoverObject = ref(null)
+  const { onPointerUp, onPointerDown } = useClickWithoutDragging(() => {
+    if (!interactiveObjectsStore.hoverObject) {
+      return
+    }
+
+    const name = interactiveObjectsStore.hoverObject.name
+    if (tweens.has(name)) {
+      return
+    }
+
+    tweens.set(name, new Tween(interactiveObjectsStore.hoverObject.position)
+      .easing(Easing.Cubic.InOut)
+      .repeat(1)
+      .yoyo(true)
+      .to(
+        {
+          y: interactiveObjectsStore.hoverObject.position.y - 0.005
+        },
+        DURATION_SNAPPY
+      )
+      .onComplete(() => tweens.delete(name))
+      .start()
+    )
+  })
 
   const scrollHeight = computed(() => animationsStore.config?.frameCount * animationsStore.config?.framesPerSecond)
   const isInteractive = computed(() => controlsStore.currentControlsType !== 'scroll')
