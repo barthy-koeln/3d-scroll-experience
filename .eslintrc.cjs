@@ -10,11 +10,16 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
     extraFileExtensions: [
-        '.vue'
+      '.vue'
     ],
     project: [
-        './tsconfig.json'
+      './tsconfig.json',
+      './tsconfig.config.json'
     ]
+  },
+
+  env: {
+    'vue/setup-compiler-macros': true
   },
 
   extends: [
@@ -45,7 +50,8 @@ module.exports = {
       ],
       parser: 'vue-eslint-parser',
       parserOptions: {
-        parser: '@typescript-eslint/parser'
+        parser: '@typescript-eslint/parser',
+        sourceType: "module"
       },
       rules: {
         indent: 'off',
@@ -116,7 +122,7 @@ module.exports = {
         ],
         // Enforce static class names order
         'vue/static-class-names-order': [
-            'error'
+          'error'
         ]
       }
     }

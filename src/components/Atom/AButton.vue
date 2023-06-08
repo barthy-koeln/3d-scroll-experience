@@ -49,7 +49,7 @@
       --color: var(--color-primary-light);
     }
 
-    svg {
+    .IIcon {
       height: 2em;
       width: 2em;
     }

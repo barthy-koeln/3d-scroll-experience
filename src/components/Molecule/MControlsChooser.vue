@@ -8,13 +8,13 @@
         :key="key"
       >
         <AButton
-          v-if="availableControls.includes(key)"
-          :active="currentControlsType === key"
-          @click="onClick(key)"
+          v-if="controlsStore.availableControls.includes(key)"
+          :active="controlsStore.currentControlsType === key || controlsStore.nextControlsType === key"
+          @click="controlsStore.change(key)"
         >
           <span>{{ config.title }}</span>
 
-          <Component :is="config.icon" />
+          <Component :is="controlsStore.nextControlsType === key ? ILoading : config.icon" />
         </AButton>
       </template>
     </div>
@@ -27,12 +27,11 @@
   import IOrbit from '@/components/Icon/IOrbit.vue'
   import IArrows from '@/components/Icon/IArrows.vue'
   import type { Component } from 'vue'
-  import { inject } from 'vue'
-  import type { ControlsType } from '@/services/ControlsManager'
-  import { ControlsManager, ControlsManagerService } from '@/services/ControlsManager'
+  import type { ControlsType } from '@/state/useControlsStore'
+  import { useControlsStore } from '@/state/useControlsStore'
+  import ILoading from '@/components/Icon/ILoading.vue'
 
-  const controlsManager = inject<ControlsManager>(ControlsManagerService) as ControlsManager
-  const { availableControls, currentControlsType } = controlsManager
+  const controlsStore = useControlsStore()
 
   type ButtonConfig = {
     title: string,
@@ -52,10 +51,6 @@
       title: 'FPV + WASD / Arrows',
       icon: IArrows
     }
-  }
-
-  function onClick (type: ControlsType) {
-    controlsManager.switchControls(type)
   }
 </script>
 

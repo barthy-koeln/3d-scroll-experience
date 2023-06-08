@@ -34,27 +34,25 @@
   import { computed, inject, ref } from 'vue'
   import type { AnimationDirector } from '@/services/AnimationDirector'
   import { AnimationDirectorService } from '@/services/AnimationDirector'
-  import { ControlsManager, ControlsManagerService } from '@/services/ControlsManager'
+  import { useControlsStore } from '@/state/useControlsStore'
 
   const animationDirector = inject<AnimationDirector>(AnimationDirectorService) as AnimationDirector
-  const controlsManager = inject<ControlsManager>(ControlsManagerService) as ControlsManager
-
+  const controlsStore = useControlsStore()
   animationDirector.setConfig({
     frameCount: 190,
     framesPerSecond: 30
   })
 
-  controlsManager.setAvailableControls([
+  controlsStore.setAvailableControls([
     'scroll',
     'orbit'
   ])
 
   const hoverObject = ref(null)
   const currentFrame = animationDirector.currentFrame
-  const controlsType = controlsManager.currentControlsType
 
   const scrollHeight = computed(() => animationDirector.config?.frameCount * animationDirector.config?.framesPerSecond)
-  const isInteractive = computed(() => controlsType.value !== 'scroll')
+  const isInteractive = computed(() => controlsStore.currentControlsType !== 'scroll')
 
   const staticRevealItems = computed(() => [
     {

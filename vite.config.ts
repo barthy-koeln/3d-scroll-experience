@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       'three/examples': fileURLToPath(new URL('./node_modules/three/examples', import.meta.url)),
-      'three': fileURLToPath(new URL('./node_modules/three/src/Three', import.meta.url))
+      three: fileURLToPath(new URL('./node_modules/three/src/Three', import.meta.url))
     }
   },
   esbuild: {

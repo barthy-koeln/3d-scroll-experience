@@ -23,8 +23,7 @@
   import { useResizeListener } from '@/composables/useResizeListener'
   import { CameraOperator, CameraOperatorService } from '@/services/CameraOperator'
   import { AnimationDirector, AnimationDirectorService } from '@/services/AnimationDirector'
-  import type { ControlsManager } from '@/services/ControlsManager'
-  import { ControlsManagerService } from '@/services/ControlsManager'
+  import { useControlsStore } from '@/state/useControlsStore'
 
   const props = defineProps<{
     modelUrl: string,
@@ -40,6 +39,7 @@
   const clock = new Clock()
   const element = ref<HTMLElement>()
   const animationFrameId = ref<number|null>(null)
+  const controlsStore = useControlsStore()
 
   const { canvas, updateCanvasDimensions } = useResponsiveCanvas('OInterActiveScene__canvas')
   const { renderer, updateRendererDimensions } = useResponsiveRenderer(canvas)
@@ -55,7 +55,6 @@
   } = await useInteractiveGLTF(props.modelUrl, [], scene, anisotropy)
 
   const animationDirector = inject<AnimationDirector>(AnimationDirectorService)
-  const controlsManager = inject<ControlsManager>(ControlsManagerService)
   const cameraOperator = inject<CameraOperator>(CameraOperatorService)
   cameraOperator?.setCamera(camera, 16 / 9)
   cameraOperator?.setCameraTarget(cameraTarget)
@@ -82,7 +81,7 @@
     const delta = clock.getDelta()
     // raycaster.setFromCamera(pointer, camera)
 
-    controlsManager?.updateControls(time, delta)
+    controlsStore?.update(time, delta)
 
     // updateIntersections(interactiveObjects, props.hoverObject)
     updateAllTweens(time)
@@ -95,7 +94,7 @@
     await nextTick()
     element.value?.appendChild(canvas)
     animationFrameId.value = window.requestAnimationFrame(render)
-    controlsManager?.start()
+    controlsStore?.start()
   })
 
   onBeforeUnmount(() => {
@@ -105,7 +104,7 @@
     }
 
     animationDirector?.stopAnimation()
-    controlsManager?.stop()
+    controlsStore?.stop()
     canvas.remove()
   })
 </script>

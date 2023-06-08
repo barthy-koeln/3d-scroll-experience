@@ -2,7 +2,7 @@
   <div class="AScrollHint">
     <svg
       aria-hidden="true"
-      class="svg-inline--fa fa-mouse-alt fa-w-12"
+      class="fa-mouse-alt fa-w-12 svg-inline--fa"
       data-icon="mouse-alt"
       data-prefix="fad"
       focusable="false"

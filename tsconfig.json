@@ -1,20 +1,16 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "ESNext",
-    "moduleResolution": "Node",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "esnext",
+    "module": "esnext",
     "paths": {
       "@/*": ["./src/*"]
     },
-    "module": "esnext",
     "typeRoots": [
       "./@types"
     ]
   },
-
   "references": [
     {
       "path": "./tsconfig.config.json"
