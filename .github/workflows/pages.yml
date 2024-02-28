@@ -38,7 +38,7 @@ jobs:
         run: yarn install --frozen-lockfile
         working-directory: ${{ env.BUILD_PATH }}
       - name: Build with vite
-        run: yarn build
+        run: yarn build-only --base=/3d-scroll-experience/
         working-directory: ${{ env.BUILD_PATH }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
