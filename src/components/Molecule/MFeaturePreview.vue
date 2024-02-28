@@ -49,7 +49,7 @@
       inset: 0 0 0 0;
       overflow: hidden;
       position: absolute;
-      border-radius: 64px;
+      border-radius: 8px;
     }
 
     &__title {

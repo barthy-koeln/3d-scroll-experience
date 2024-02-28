@@ -1,19 +1,35 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": [
+    "src/env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.vue",
+  ],
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "lib": [
+      "ES2021",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
-    "typeRoots": [
-      "./@types"
-    ]
+    "types": [
+      "vite/client",
+      "node",
+    ],
   },
   "references": [
     {
       "path": "./tsconfig.config.json"
     }
-  ]
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "es2015",
+      "moduleResolution": "node"
+    }
+  }
 }

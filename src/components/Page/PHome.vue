@@ -72,7 +72,7 @@
   const controlsStore = useControlsStore()
   const animationsStore = useAnimationsStore()
   const interactiveObjectsStore = useInteractiveObjectsStore()
-  const tweens = new Map<string, Tween<unknown>>()
+  const tweens = new Map<string, Tween<Record<string, any>>>()
 
   animationsStore.setConfig({
     frameCount: 190,
@@ -104,12 +104,20 @@
         },
         DURATION_SNAPPY
       )
-      .onComplete(() => tweens.delete(name))
+      .onComplete(() => {
+        tweens.delete(name)
+      })
       .start()
     )
   })
 
-  const scrollHeight = computed(() => animationsStore.config?.frameCount * animationsStore.config?.framesPerSecond)
+  const scrollHeight = computed(() => {
+    if (!animationsStore.config) {
+      return 0
+    }
+
+    return animationsStore.config.frameCount * animationsStore.config.framesPerSecond
+  })
   const isInteractive = computed(() => controlsStore.currentControlsType !== 'scroll')
 
   const staticRevealItems = computed(() => [

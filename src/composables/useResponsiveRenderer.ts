@@ -15,7 +15,6 @@ export function useResponsiveRenderer (canvas: HTMLCanvasElement): ResponsiveRen
     }
   )
 
-  renderer.useLegacyLights = false
   renderer.shadowMap.enabled = true
   renderer.outputColorSpace = SRGBColorSpace
   renderer.shadowMap.type = PCFSoftShadowMap

@@ -1,20 +1,20 @@
 {
-  "extends": [
-    "@tsconfig/node18/tsconfig.json",
-    "@vue/tsconfig/tsconfig.json"
-  ],
+  "extends": "@vue/tsconfig/tsconfig.json",
   "include": [
-    "vite.config.*",
-    "vitest.config.*",
-    "cypress.config.*",
-    "playwright.config.*"
+    "vite.config.ts",
+    "vite.config.docker.ts",
+    "vitest.config.ts",
+    "cypress.config.ts",
+    "playwright.config.ts",
+    "histoire.config.ts",
   ],
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "composite": true,
     "types": [
       "node",
-      "vite/client"
+      "vite/client",
     ]
   }
 }
