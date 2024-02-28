@@ -10,7 +10,7 @@ export async function useEnvMap (renderer: WebGLRenderer, url: string): Promise<
     rgbeLoader
       .setDataType(HalfFloatType)
       .load(
-        url,
+        `${import.meta.env.BASE_URL}${url}`,
         function (texture: Texture) {
           const envMap = pmremGenerator.fromEquirectangular(texture).texture
 

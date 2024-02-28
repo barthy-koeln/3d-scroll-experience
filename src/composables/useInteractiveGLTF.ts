@@ -44,7 +44,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
     }
   }
 
-  const gltf: GLTF = await gltfLoader.loadAsync(url)
+  const gltf: GLTF = await gltfLoader.loadAsync(`${import.meta.env.BASE_URL}${url}`)
 
   const interactiveObjects = [] as Object3D[]
   for (const objectName of interactiveElementNames) {

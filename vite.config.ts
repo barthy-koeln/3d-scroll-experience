@@ -17,21 +17,6 @@ export default defineConfig(({ mode }) => ({
     }
   },
   esbuild: {
-    drop: mode === 'production' ? ['console', 'debugger'] : []
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks (id) {
-          if (id.includes('three/src/')) {
-            return 'three-core'
-          }
-
-          if (id.includes('node_modules')) {
-            return 'vendor'
-          }
-        }
-      }
-    }
+    // drop: mode === 'production' ? ['console', 'debugger'] : []
   }
 }))
