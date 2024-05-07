@@ -25,7 +25,7 @@ export async function useInteractiveGLTF (url: string, interactiveElementNames: 
       child.castShadow = true
       child.shadow.mapSize.width = 1024
       child.shadow.mapSize.height = 1024
-      child.shadow.bias = -0.005
+      child.shadow.bias = -0.001
       return
     }
 

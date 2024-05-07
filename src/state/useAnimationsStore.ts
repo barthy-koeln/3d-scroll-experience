@@ -40,7 +40,7 @@ export const useAnimationsStore = defineStore('animations', () => {
     mixer.value?.setTime(factor * duration.value)
 
     if (newFrame !== currentFrame.value) {
-      currentFrame.value = Math.round(factor * frameCount)
+      currentFrame.value = newFrame
     }
   }
 

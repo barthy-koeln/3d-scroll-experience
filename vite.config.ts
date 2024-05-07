@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
     vue(),
     visualizer({ filename: 'dist/bundle.html' })
   ],
+
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

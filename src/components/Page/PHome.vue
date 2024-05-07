@@ -12,8 +12,8 @@
       <OInterActiveScene
         ref="scene"
         class="PHome__scene"
-        model-url="/models/keypad/keypad.bake.gltf"
-        env-map-url="/envmap/brown_photostudio_02_1k.hdr"
+        model-url="models/keypad/keypad.bake.gltf"
+        :env-map-url="envMapUrl"
         :interactive-element-names="[
           'key-0',
           'key-1',
@@ -55,21 +55,22 @@
 </template>
 
 <script lang="ts" setup>
-  import AScrollHint from '@/components/Atom/AScrollHint.vue'
-  import MControlsChooser from '@/components/Molecule/MControlsChooser.vue'
-  import MFeaturePreview from '@/components/Molecule/MFeaturePreview.vue'
-  import MHeader from '@/components/Molecule/MHeader.vue'
-  import OAppearList from '@/components/Organism/OAppearList.vue'
-  import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
-  import { computed } from 'vue'
-  import { useControlsStore } from '@/state/useControlsStore'
-  import { useAnimationsStore } from '@/state/useAnimationsStore'
-  import { useInteractiveObjectsStore } from '@/state/useInteractiveObjectsStore'
-  import { useClickWithoutDragging } from '@/composables/useClickWithoutDragging'
-  import { Easing, Tween } from '@tweenjs/tween.js'
-  import { DURATION_SNAPPY } from '@/constants'
+import AScrollHint from '@/components/Atom/AScrollHint.vue'
+import MControlsChooser from '@/components/Molecule/MControlsChooser.vue'
+import MFeaturePreview from '@/components/Molecule/MFeaturePreview.vue'
+import MHeader from '@/components/Molecule/MHeader.vue'
+import OAppearList from '@/components/Organism/OAppearList.vue'
+import OInterActiveScene from '@/components/Organism/OInteractiveScene.vue'
+import { computed } from 'vue'
+import { useControlsStore } from '@/state/useControlsStore'
+import { useAnimationsStore } from '@/state/useAnimationsStore'
+import { useInteractiveObjectsStore } from '@/state/useInteractiveObjectsStore'
+import { useClickWithoutDragging } from '@/composables/useClickWithoutDragging'
+import { Easing, Tween } from '@tweenjs/tween.js'
+import { DURATION_SNAPPY } from '@/constants'
+import envMapUrl from '@/assets/envmap/brown_photostudio_02_1k.hdr?url'
 
-  const controlsStore = useControlsStore()
+const controlsStore = useControlsStore()
   const animationsStore = useAnimationsStore()
   const interactiveObjectsStore = useInteractiveObjectsStore()
   const tweens = new Map<string, Tween<Record<string, any>>>()
