@@ -18,6 +18,13 @@ module.exports = {
     ]
   },
 
+  ignorePatterns: [
+    'public/**/*',
+    'dist/**/*',
+    'node_modules/**/*',
+    '*.json'
+  ],
+
   env: {
     'vue/setup-compiler-macros': true
   },
