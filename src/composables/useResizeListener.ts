@@ -19,4 +19,6 @@ export function useResizeListener (handler: ResizeListenerCallback) {
   onBeforeUnmount(() => {
     window.removeEventListener('resize', onResize)
   })
+
+  return onResize
 }

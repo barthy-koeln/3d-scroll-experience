@@ -1,6 +1,6 @@
 import type { AnimationFactorCallback, BeforeStartCallback } from '@/controls/ControlsInterface'
 import { ControlsInterface } from '@/controls/ControlsInterface'
-import Lenis from '@studio-freight/lenis'
+import Lenis from 'lenis'
 import { MAX_ANIMATION_FACTOR } from '@/constants'
 
 export class ScrollControls extends ControlsInterface {
