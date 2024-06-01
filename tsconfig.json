@@ -1,35 +1,23 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": [
-    "src/env.d.ts",
-    "src/**/*.ts",
-    "src/**/*.vue",
-  ],
-  "compilerOptions": {
-    "lib": [
-      "ES2021",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "types": [
-      "vite/client",
-      "node",
-    ],
-  },
+  "files": [],
   "references": [
     {
-      "path": "./tsconfig.config.json"
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
     }
   ],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "es2015",
-      "moduleResolution": "node"
-    }
+  "compilerOptions": {
+    "module": "NodeNext",
+    "lib": [
+      "es2022",
+
+      "DOM",
+      "DOM.Iterable"
+    ]
   }
 }
